@@ -6,7 +6,7 @@ set RGBDS_HOME=%GB_SDK_HOME%\rgbds
 
 set project_name=sokoban
 
-set PROJECT_HOME=%GB_SDK_HOME%\code\%project_name%
+set PROJECT_HOME=%~dp0
 
 echo "Cleaning..."
 del %project_name%.gb
