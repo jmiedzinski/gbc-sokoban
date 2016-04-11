@@ -1,0 +1,8 @@
+IF !DEF (PLAYER_INC)
+PLAYER_INC SET 1
+
+GLOBAL PlayerInit
+GLOBAL PlayerMovement
+GLOBAL AnimatePlayer
+
+ENDC
