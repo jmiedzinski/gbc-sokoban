@@ -94,12 +94,16 @@ main:
 	inc a
 	ld [vblank_count],a
 	
+	ld a,0
+	ld [player_moving],a
+	
 MainLoop:
 	halt
 	nop
 	call GetKeys
+	ld [buttons_input],a
 	call PlayerMovement
-	call AnimatePlayer
+;	call AnimatePlayer
 	jr MainLoop
 
 .loop:
@@ -172,6 +176,10 @@ GetKeys:                 ;gets keypress
 
  	ld	a,P1F_4			; select P15
  	ld 	[rP1],a
+	ld	a,[rP1]
+	ld	a,[rP1]
+	ld	a,[rP1]
+	ld	a,[rP1]
 	ld	a,[rP1]
 	ld	a,[rP1]
 	ld	a,[rP1]

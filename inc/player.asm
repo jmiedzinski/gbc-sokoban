@@ -38,75 +38,137 @@ PlayerInit::
 	ret
 
 PlayerMovement::
-	push	af
+	push af
+	ld a,[player_moving]
+	ld b,0
+	cp b
+	jr z,.buttons
+	jr nz,.move
+.buttons:
+	call check_buttons
+	jr .end
+.move:
+	call perform_movement
+.end:
+	pop af
+	ret
+	
+check_buttons:
+	push af
+	ld a,[buttons_input]
 	and	PADF_RIGHT
-	call	nz,move_right
+	call	nz,button_right
 	pop	af
 	push	af
+	ld a,[buttons_input]
 	and	PADF_LEFT
-	call	nz,move_left
+	call	nz,button_left
 	pop	af
 	push	af
+	ld a,[buttons_input]
 	and	PADF_UP
-	call	nz,move_up
+	call	nz,button_up
 	pop	af
 	push	af
+	ld a,[buttons_input]
 	and	PADF_DOWN
-	call	nz,move_down
+	call	nz,button_down
 	pop	af
 	ret
 	
-move_right:
-	ld [move_direction],a
-	GetSpriteXAddr	Sprite0
-	cp		SCRN_X-8	; already on RHS of screen?
-	ret		z
-	inc		a
-	PutSpriteXAddr	Sprite0,a
-	PutSpriteXAddr	Sprite1,a
-	ld b,8
-	add a,b
-	PutSpriteXAddr	Sprite2,a
+perform_movement:
+	push af
+	ld a,[move_direction]
+	ld h,a
+	cp PADF_RIGHT
+	jr z,.is_right
+	cp PADF_LEFT
+	jr z,.is_left
+	cp PADF_UP
+	jr z,.is_up
+	cp PADF_DOWN
+	jr z,.is_down
+.is_right:
+	GetSpriteXAddr	Sprite3
+	inc a
+	ld b,a
 	PutSpriteXAddr	Sprite3,a
+	and 256-8
+	cp b
+	jr z,.finish_movement
+	jr nz,.end
+.is_left:
+	GetSpriteXAddr	Sprite3
+	dec a
+	ld b,a
+	PutSpriteXAddr	Sprite3,a
+	and 256-8
+	cp b
+	jr z,.finish_movement
+	jr nz,.end
+.is_down:
+	GetSpriteYAddr	Sprite3
+	inc a
+	ld c,a
+	PutSpriteYAddr	Sprite3,a
+	and 256-8
+	cp c
+	jr z,.finish_movement
+	jr nz,.end
+.is_up:
+	GetSpriteYAddr	Sprite3
+	dec a
+	ld c,a
+	PutSpriteYAddr	Sprite3,a
+	and 256-8
+	cp c
+	jr z,.finish_movement
+	jr nz,.end	
+.finish_movement
+	ld a,0
+	ld [player_moving],a
+.end
+	pop af
 	ret
-move_left:
+	
+button_right:
+	push af
+	ld a,PADF_RIGHT
 	ld [move_direction],a
-	GetSpriteXAddr	Sprite0
-	cp		0		; already on LHS of screen?
-	ret		z
-	dec		a
-	PutSpriteXAddr	Sprite0,a
-	PutSpriteXAddr	Sprite1,a
-	ld b,8
-	add a,b
-	PutSpriteXAddr	Sprite2,a
-	PutSpriteXAddr	Sprite3,a
+	ld a,1
+	ld [player_moving],a
+	xor a
+	pop af
+	ret
+	
+button_left:
+	push af
+	ld a,PADF_LEFT
+	ld [move_direction],a
+	ld a,1
+	ld [player_moving],a
+	xor a
+	pop af
 	ret	
-move_up:
+	
+button_up:
+	push af
+	ld a,PADF_UP
 	ld [move_direction],a
-	GetSpriteYAddr	Sprite0
-	cp		0		; already at top of screen?
-	ret		z
-	dec		a
-	PutSpriteYAddr	Sprite0,a
-	PutSpriteYAddr	Sprite2,a
-	ld b,8
-	add a,b
-	PutSpriteYAddr	Sprite1,a
-	PutSpriteYAddr	Sprite3,a
+	ld a,1
+	ld [player_moving],a
+	xor a
+	pop af
 	ret
-move_down:
+	
+button_down:
+	push af
+	ld a,PADF_DOWN
 	ld [move_direction],a
-	GetSpriteYAddr	Sprite0
-	cp		SCRN_Y-8	; already at bottom of screen?
-	ret		z
-	inc		a
-	PutSpriteYAddr	Sprite0,a
-	PutSpriteYAddr	Sprite2,a
-	ld b,8
-	add a,b
-	PutSpriteYAddr	Sprite1,a
-	PutSpriteYAddr	Sprite3,a
+	ld a,1
+	ld [player_moving],a
+	xor a
+	pop af
 	ret
 	
 AnimatePlayer::

@@ -12,6 +12,7 @@ GLOBAL last_vblank_count
 GLOBAL seconds_passed
 GLOBAL player_moving
 GLOBAL move_direction
+GLOBAL buttons_input
 
 GLOBAL Sprite0YAddr
 GLOBAL Sprite0XAddr
