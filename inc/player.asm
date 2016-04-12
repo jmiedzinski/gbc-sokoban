@@ -79,51 +79,74 @@ check_buttons:
 perform_movement:
 	push af
 	ld a,[move_direction]
-	ld h,a
 	cp PADF_RIGHT
-	jr z,.is_right
+	jp z,.move_right
 	cp PADF_LEFT
-	jr z,.is_left
+	jp z,.move_left
 	cp PADF_UP
-	jr z,.is_up
+	jp z,.move_up
 	cp PADF_DOWN
-	jr z,.is_down
-.is_right:
+	jp z,.move_down
+.move_right:
 	GetSpriteXAddr	Sprite3
 	inc a
 	ld b,a
+	sub 8
+	ld c,a
+	ld a,b
 	PutSpriteXAddr	Sprite3,a
-	and 256-8
+	PutSpriteXAddr	Sprite2,a
+	PutSpriteXAddr	Sprite0,c
+	PutSpriteXAddr	Sprite1,c
+	and 256-16
 	cp b
-	jr z,.finish_movement
-	jr nz,.end
-.is_left:
+	jp z,.finish_movement
+	jp nz,.end
+.move_left:
 	GetSpriteXAddr	Sprite3
 	dec a
 	ld b,a
+	sub 8
+	ld d,a
+	ld a,b
 	PutSpriteXAddr	Sprite3,a
-	and 256-8
+	PutSpriteXAddr	Sprite2,a
+	PutSpriteXAddr	Sprite0,d
+	PutSpriteXAddr	Sprite1,d
+	and 256-16
 	cp b
-	jr z,.finish_movement
-	jr nz,.end
-.is_down:
+	jp z,.finish_movement
+	jp nz,.end
+.move_down:
 	GetSpriteYAddr	Sprite3
 	inc a
 	ld c,a
+	sub 8
+	ld d,a
+	ld a,c
 	PutSpriteYAddr	Sprite3,a
-	and 256-8
+	PutSpriteYAddr	Sprite1,a
+	PutSpriteYAddr	Sprite0,d
+	PutSpriteYAddr	Sprite2,d
+	and 256-16
 	cp c
-	jr z,.finish_movement
-	jr nz,.end
-.is_up:
+	jp z,.finish_movement
+	jp nz,.end
+.move_up:
 	GetSpriteYAddr	Sprite3
 	dec a
 	ld c,a
+	sub 8
+	ld d,a
+	ld a,c
 	PutSpriteYAddr	Sprite3,a
-	and 256-8
+	PutSpriteYAddr	Sprite1,a
+	PutSpriteYAddr	Sprite0,d
+	PutSpriteYAddr	Sprite2,d
+	and 256-16
 	cp c
-	jr z,.finish_movement
-	jr nz,.end	
+	jp z,.finish_movement
+	jp nz,.end	
 .finish_movement
 	ld a,0
 	ld [player_moving],a
@@ -173,13 +196,17 @@ button_down:
 	
 AnimatePlayer::
 	push af
+	ld a,[player_moving]
+	ld b,0
+	cp b
+	jp z,.first_frame
 	ld a,[last_vblank_count]
 	ld b,a
 	ld a,[vblank_count]
 	cp b
 	jr z,.end
 	ld b,a
-	and 256-8
+	and 256-4
 	cp b
 	jr nz,.end
 	ld a,[Sprite0TileNum]

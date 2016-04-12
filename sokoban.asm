@@ -103,7 +103,7 @@ MainLoop:
 	call GetKeys
 	ld [buttons_input],a
 	call PlayerMovement
-;	call AnimatePlayer
+	call AnimatePlayer
 	jr MainLoop
 
 .loop:
