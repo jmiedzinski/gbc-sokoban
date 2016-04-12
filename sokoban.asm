@@ -4,6 +4,7 @@ INCLUDE "inc/vars.inc"						; moje zmienne w niskim RAM'ie
 INCLUDE "inc/memory.inc"					; obsluga pamieci
 INCLUDE "inc/sprite.inc"					; obsluga sprite'ow
 INCLUDE "res/tiles.z80"
+INCLUDE "res/player_tiles.z80"
 INCLUDE "res/map1.z80"
 INCLUDE "inc/player.inc"
 
@@ -86,6 +87,11 @@ main:
 	ld hl, TileData																; ustaw adres etykiety TileData (tiles.z80) w HL
 	ld de, _VRAM       															; ustaw adres docelowy ($8000) w DE
 	ld bc, $01f0																; ustaw ilosc bajtow do skopiowania w BC (jeden kafelek 8x8 = 16b * ilosc kafelkow)
+	call mem_Copy 																; skopiuj pamiec
+	
+	ld hl, PlayerTilesData														; ustaw adres etykiety TileData (tiles.z80) w HL
+	ld de, $8800       															; ustaw adres docelowy ($8000) w DE
+	ld bc, $0300																; ustaw ilosc bajtow do skopiowania w BC (jeden kafelek 8x8 = 16b * ilosc kafelkow)
 	call mem_Copy 																; skopiuj pamiec
 	
 	call PlayerInit

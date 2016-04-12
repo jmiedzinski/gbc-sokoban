@@ -9,6 +9,8 @@ seconds_passed::		DS 1
 player_moving::			DS 1
 move_direction::		DS 1
 buttons_input::			DS 1
+curr_anim_first_frame	DS 1
+curr_anim_last_frame	DS 1
 
 SECTION "WRAM_C1",BSS[$C100]
 	SpriteAttr	Sprite0

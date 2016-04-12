@@ -7,33 +7,39 @@ SECTION "Player code", HOME
 
 PlayerInit::
 	push af
-	PutSpriteYAddr	Sprite0,8*5	; ustaw pozycje kafelka Sprite0 w 0,0
+	PutSpriteYAddr	Sprite0,8*5		; ustaw pozycje kafelka Sprite0 w 0,0
 	PutSpriteXAddr	Sprite0,8*5
- 	ld	a,$13						; ustaw w A numer kafelka
- 	ld 	[Sprite0TileNum],a      ; zapisz wartosc A pod adresem Sprite0TileNum
- 	ld	a,%00000000         	; ustaw flagi dla kafelka Sprite0
- 	ld	[Sprite0Flags],a        ; zapisz flagi pod adresem Sprite0Flags
+ 	ld	a,ANIM_DOWN_START		; ustaw w A numer kafelka
+ 	ld 	[Sprite0TileNum],a      	; zapisz wartosc A pod adresem Sprite0TileNum
+ 	ld	a,%00000000         		; ustaw flagi dla kafelka Sprite0
+ 	ld	[Sprite0Flags],a        	; zapisz flagi pod adresem Sprite0Flags
 	
 	PutSpriteYAddr	Sprite1,8*6
 	PutSpriteXAddr	Sprite1,8*5
-	ld	a,$15
+	ld	a,ANIM_DOWN_START+1
 	ld	[Sprite1TileNum],a
 	ld	a,%00000000
 	ld	[Sprite1Flags],a
 	
 	PutSpriteYAddr	Sprite2,8*5
 	PutSpriteXAddr	Sprite2,8*6
-	ld	a,$14
+	ld	a,ANIM_DOWN_START+2
 	ld	[Sprite2TileNum],a
 	ld	a,%00000000
 	ld	[Sprite2Flags],a
 	
 	PutSpriteYAddr	Sprite3,8*6
 	PutSpriteXAddr	Sprite3,8*6
-	ld	a,$16
+	ld	a,ANIM_DOWN_START+3
 	ld	[Sprite3TileNum],a
 	ld	a,%00000000
 	ld	[Sprite3Flags],a
+	
+	ld a,ANIM_DOWN_START
+	ld [curr_anim_first_frame],a
+	ld a,ANIM_DOWN_STOP
+	ld [curr_anim_last_frame],a
+	
 	pop af
 	ret
 
@@ -94,10 +100,7 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	sub 8							; odejmij 8 od biezacej wspolrzednej X sprite'a
 	ld c,a							; zapisz do C
 	ld a,b							; przywroc wartosc A sprzed odejmowania
-	PutSpriteXAddr	Sprite3,a		; ustaw nowa wspolrzedna dla sprite'ow (Sprite0 i Sprite1 sa przesuniete o -8)
-	PutSpriteXAddr	Sprite2,a
-	PutSpriteXAddr	Sprite0,c
-	PutSpriteXAddr	Sprite1,c
+	call set_player_position_x
 	and 256-16
 	cp b
 	jp z,.finish_movement			; jesli pozycja po przesunieciu o 1 dzieli sie bez reszty przez 16 to znaczy, ze trzeba zakonczyc ruch 
@@ -107,12 +110,9 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	dec a
 	ld b,a
 	sub 8
-	ld d,a
+	ld c,a
 	ld a,b
-	PutSpriteXAddr	Sprite3,a
-	PutSpriteXAddr	Sprite2,a
-	PutSpriteXAddr	Sprite0,d
-	PutSpriteXAddr	Sprite1,d
+	call set_player_position_x
 	and 256-16
 	cp b
 	jp z,.finish_movement
@@ -120,14 +120,11 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 .move_down:							; analogicznie jak move_right tyle ze operujemy na wspolrzednej Y
 	GetSpriteYAddr	Sprite3
 	inc a
-	ld c,a
+	ld b,a
 	sub 8
-	ld d,a
-	ld a,c
-	PutSpriteYAddr	Sprite3,a
-	PutSpriteYAddr	Sprite1,a
-	PutSpriteYAddr	Sprite0,d
-	PutSpriteYAddr	Sprite2,d
+	ld c,a
+	ld a,b
+	call set_player_position_y
 	and 256-16
 	cp c
 	jp z,.finish_movement
@@ -135,14 +132,11 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 .move_up:							; analogicznie jak w move_left tyle ze operujemy na wspolrzednej Y
 	GetSpriteYAddr	Sprite3
 	dec a
-	ld c,a
+	ld b,a
 	sub 8
-	ld d,a
-	ld a,c
-	PutSpriteYAddr	Sprite3,a
-	PutSpriteYAddr	Sprite1,a
-	PutSpriteYAddr	Sprite0,d
-	PutSpriteYAddr	Sprite2,d
+	ld c,a
+	ld a,b
+	call set_player_position_y
 	and 256-16
 	cp c
 	jp z,.finish_movement
@@ -160,7 +154,10 @@ button_right:						; obsluga ruchu w prawo
 	ld [move_direction],a
 	ld a,1
 	ld [player_moving],a			; ustaw flage ruchu na 1 [player_moving]
-	xor a
+	ld a,ANIM_RIGHT_START
+	ld [curr_anim_first_frame],a
+	ld a,ANIM_RIGHT_STOP
+	ld [curr_anim_last_frame],a
 	pop af
 	ret
 	
@@ -170,7 +167,10 @@ button_left:
 	ld [move_direction],a
 	ld a,1
 	ld [player_moving],a
-	xor a
+	ld a,ANIM_LEFT_START
+	ld [curr_anim_first_frame],a
+	ld a,ANIM_LEFT_STOP
+	ld [curr_anim_last_frame],a
 	pop af
 	ret	
 	
@@ -180,7 +180,10 @@ button_up:
 	ld [move_direction],a
 	ld a,1
 	ld [player_moving],a
-	xor a
+	ld a,ANIM_UP_START
+	ld [curr_anim_first_frame],a
+	ld a,ANIM_UP_STOP
+	ld [curr_anim_last_frame],a
 	pop af
 	ret
 	
@@ -190,8 +193,25 @@ button_down:
 	ld [move_direction],a
 	ld a,1
 	ld [player_moving],a
-	xor a
+	ld a,ANIM_DOWN_START
+	ld [curr_anim_first_frame],a
+	ld a,ANIM_DOWN_STOP
+	ld [curr_anim_last_frame],a
 	pop af
+	ret
+	
+set_player_position_x:
+	PutSpriteXAddr	Sprite0,c
+	PutSpriteXAddr	Sprite1,c
+	PutSpriteXAddr	Sprite2,a
+	PutSpriteXAddr	Sprite3,a
+	ret
+	
+set_player_position_y:
+	PutSpriteYAddr	Sprite0,c
+	PutSpriteYAddr	Sprite1,a
+	PutSpriteYAddr	Sprite2,c
+	PutSpriteYAddr	Sprite3,a
 	ret
 	
 AnimatePlayer::						; animacja postaci gracza
@@ -209,29 +229,30 @@ AnimatePlayer::						; animacja postaci gracza
 	and 256-4						; zmieniamy klatke animacji co 4 vblanki
 	cp b
 	jr nz,.end						; jesli jestesmy w n % 4 =0 vblanku to
+	ld a,[curr_anim_last_frame]
+	ld c,a
 	ld a,[Sprite0TileNum]
 	add a,4							; zobacz czy mamy kolejna klatke do animacji
-	ld b,$1f
-	cp b
+	cp c
 	jr nz,.next_frame				; jesli mamy to ustaw ja dla wszystkich 4 sprite'ow
 	jr z,.first_frame				; jesli nie mamy to wroc do klatki 0 (dla wszystkich 4 sprite'ow)
 .next_frame:
 	ld [Sprite0TileNum],a
 	inc a
-	ld [Sprite2TileNum],a
-	inc a
 	ld [Sprite1TileNum],a
+	inc a
+	ld [Sprite2TileNum],a
 	inc a
 	ld [Sprite3TileNum],a
 	jr .end
 .first_frame:
-	ld a,$13
+	ld a,[curr_anim_first_frame]
 	ld [Sprite0TileNum],a
-	ld a,$14
-	ld [Sprite2TileNum],a
-	ld a,$15
+	inc a
 	ld [Sprite1TileNum],a
-	ld a,$16
+	inc a
+	ld [Sprite2TileNum],a
+	inc a
 	ld [Sprite3TileNum],a
 .end:
 	pop af
