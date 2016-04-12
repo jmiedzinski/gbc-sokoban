@@ -94,9 +94,6 @@ main:
 	inc a
 	ld [vblank_count],a
 	
-	ld a,0
-	ld [player_moving],a
-	
 MainLoop:
 	halt
 	nop
