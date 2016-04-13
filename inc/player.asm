@@ -84,6 +84,7 @@ check_buttons:
 	
 perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	push af
+	push bc
 	ld a,[move_direction]			; zaladuj kierunek ze zmiennej move_direction, sprawdz i skocz do obslugi odpowiedniego kierunku
 	cp PADF_RIGHT
 	jp z,.move_right
@@ -94,6 +95,7 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	cp PADF_DOWN
 	jp z,.move_down
 .move_right:						; w prawo: przesun wszystkie sprite'y o 1 w prawo i sprawdz czy nie sa juz w docelowym miejscu
+;	debug_out "perform_movement->left"
 	GetSpriteXAddr	Sprite3
 	inc a							; dodaj 1 do biezace wspolrzednej X sprite'a
 	ld b,a							; skopiuj do B
@@ -106,6 +108,7 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	jp z,.finish_movement			; jesli pozycja po przesunieciu o 1 dzieli sie bez reszty przez 16 to znaczy, ze trzeba zakonczyc ruch 
 	jp nz,.end						; w przeciwnym wypadku po prostu zakoncz procedure bez zmiany flagi player_moving
 .move_left:							; analogicznie jak move_right tyle ze przesuwamy sie w lewo a wiec odejmujemy 1 od biezacej wspolrzednej X
+;	debug_out "perform_movement->left"
 	GetSpriteXAddr	Sprite3
 	dec a
 	ld b,a
@@ -118,6 +121,7 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	jp z,.finish_movement
 	jp nz,.end
 .move_down:							; analogicznie jak move_right tyle ze operujemy na wspolrzednej Y
+;	debug_out "perform_movement->left"
 	GetSpriteYAddr	Sprite3
 	inc a
 	ld b,a
@@ -130,6 +134,7 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	jp z,.finish_movement
 	jp nz,.end
 .move_up:							; analogicznie jak w move_left tyle ze operujemy na wspolrzednej Y
+;	debug_out "perform_movement->left"
 	GetSpriteYAddr	Sprite3
 	dec a
 	ld b,a
@@ -145,6 +150,7 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	xor a
 	ld [player_moving],a
 .end
+	pop bc
 	pop af
 	ret
 	
@@ -216,6 +222,7 @@ set_player_position_y:
 	
 AnimatePlayer::						; animacja postaci gracza
 	push af
+	push bc
 	ld a,[player_moving]			; sprawdz czy postac w trakcie ruchu
 	ld b,0
 	cp b
@@ -255,5 +262,6 @@ AnimatePlayer::						; animacja postaci gracza
 	inc a
 	ld [Sprite3TileNum],a
 .end:
+	pop bc
 	pop af
 	ret

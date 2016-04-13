@@ -104,6 +104,12 @@ main:
 MainLoop:
 	halt
 	nop
+;	ld a,[player_moving]
+;	debug_out "move: %a%"
+;	xor a
+	REPT 10
+	nop
+	ENDR
 	call GetKeys
 	call PlayerMovement
 	call AnimatePlayer
@@ -118,12 +124,14 @@ Title:
 TitleEnd:
 
 draw:								; procedura obslugi przerwania vblank
+	push af
 	ld a,[last_vblank_count]
 	inc a
 	ld [last_vblank_count],a
 	ld a,[vblank_count]
 	inc a
 	ld [vblank_count],a
+	pop af
 .do_dma
 	jp DMACODELOC					; skocz pod adres gdzie po wywolaniu 
 									; procedury initdma znajdzie sie kod 
@@ -132,12 +140,16 @@ draw:								; procedura obslugi przerwania vblank
 timer:								; procedura obslugi przerwania timera
 									; liczy sekundy od startu i umieszcza je
 									; pod adresem [seconds_passed]
+	push af
+	push bc
 	ld a,[timer_overflow_count]
 	inc a							; A+1
 	ld b,$10						; B=16
 	cp b							; jesli (A=B) to
 	call z,Increment_seconds		; zawolaj Increment_seconds
 	ld [timer_overflow_count],a		; wywolanie Increment_seconds zeruje A
+	pop bc
+	pop af
 	reti							; zakoncz i przywroc obsluge przerwan
 stat:
 serial:
@@ -170,7 +182,9 @@ Increment_seconds:
 GetKeys:                 ;gets keypress
 	ld 	a,P1F_5			; set bit 5
 	ld 	[rP1],a			; select P14 by setting it low. See gbspec.txt lines 1019-1095
+	REPT 10
 	ld 	a,[rP1]
+	ENDR
 	ld 	a,[rP1]			; wait a few cycles
 	cpl				; complement A. "You are a very very nice Accumulator..."
 	and 	$0f			; look at only the first 4 bits
@@ -179,16 +193,10 @@ GetKeys:                 ;gets keypress
 
 	ld	a,P1F_4			; select P15
  	ld 	[rP1],a
+	REPT 10
 	ld	a,[rP1]
-	ld	a,[rP1]
-	ld	a,[rP1]
-	ld	a,[rP1]
-;	ld	a,[rP1]
-;	ld	a,[rP1]
-;	ld	a,[rP1]
-;	ld	a,[rP1]
-;	ld	a,[rP1]
-;	ld	a,[rP1]			; wait for the bouncing to stop
+	ENDR
+	ld	a,[rP1]			; wait for the bouncing to stop
 	cpl				; as before, complement...
  	and $0f				; and look only for the last 4 bits
  	or b				; combine with the previous result
