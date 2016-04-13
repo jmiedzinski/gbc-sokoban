@@ -142,7 +142,7 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	jp z,.finish_movement
 	jp nz,.end	
 .finish_movement					; koniec ruchu - ustaw flage player_moving = 0
-	ld a,0
+	xor a
 	ld [player_moving],a
 .end
 	pop af

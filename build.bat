@@ -17,6 +17,7 @@ echo "Compiling dependencies..."
 
 %RGBDS_HOME%\rgbasm95 -ovars.obj inc\vars.asm
 %RGBDS_HOME%\rgbasm95 -omemory.obj inc\memory.asm
+%RGBDS_HOME%\rgbasm95 -okeypad.obj inc\keypad.asm
 %RGBDS_HOME%\rgbasm95 -oplayer.obj inc\player.asm
 
 echo "Compiling project..."
@@ -27,6 +28,7 @@ echo "Generating linker input..."
 echo [Objects]			>  LINK
 echo vars.obj			>> LINK
 echo memory.obj			>> LINK
+echo keypad.obj			>> LINK
 echo player.obj			>> LINK
 echo %project_name%.obj	>> LINK
 echo [Output]			>> LINK
@@ -40,6 +42,7 @@ echo "Fixing..."
 
 del vars.obj
 del memory.obj
+del keypad.obj
 del player.obj
 del sokoban.obj
 del LINK
