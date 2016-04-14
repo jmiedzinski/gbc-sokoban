@@ -5,15 +5,15 @@ IF !DEF (__vars)
 __vars SET 1
 
 debug_out:	MACRO
-	push de
-	ld d,d              ;first ID (opcode 52h)
-	jr .debug_end\@      	;relative jump, skips message, this also defines the length of following data!
-	DB "dd"            	;second ID (ascii 'dd')
-	DS 1                ;reserved for flags
+;	push de
+	ld d,d              	; first ID (opcode 52h)
+	jp .debug_end\@      	; relative jump, skips message, this also defines the length of following data!
+	DB "dd"            		; second ID (ascii 'dd')
+	DS 1                	; reserved for flags
 	DB "."
-	DB \1   			;user defined ascii data (max length 120 bytes)
+	DB \1   				; user defined ascii data (max length 120 bytes)
 .debug_end\@:
-	pop de
+;	pop de
 			ENDM
 			
 TMA_MOD_16HZ	EQU 0

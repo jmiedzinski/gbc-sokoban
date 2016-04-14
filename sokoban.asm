@@ -110,9 +110,9 @@ MainLoop:
 	REPT 10
 	nop
 	ENDR
+	call AnimatePlayer
 	call GetKeys
 	call PlayerMovement
-	call AnimatePlayer
 	jr MainLoop
 
 .loop:

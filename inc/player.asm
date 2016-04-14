@@ -7,29 +7,29 @@ SECTION "Player code", HOME
 
 PlayerInit::
 	push af
-	PutSpriteYAddr	Sprite0,8*5		; ustaw pozycje kafelka Sprite0 w 0,0
-	PutSpriteXAddr	Sprite0,8*5
+	PutSpriteYAddr	Sprite0,8*4		; ustaw pozycje kafelka Sprite0 w 0,0
+	PutSpriteXAddr	Sprite0,8*4
  	ld	a,ANIM_DOWN_START		; ustaw w A numer kafelka
  	ld 	[Sprite0TileNum],a      	; zapisz wartosc A pod adresem Sprite0TileNum
  	ld	a,%00000000         		; ustaw flagi dla kafelka Sprite0
  	ld	[Sprite0Flags],a        	; zapisz flagi pod adresem Sprite0Flags
 	
-	PutSpriteYAddr	Sprite1,8*6
-	PutSpriteXAddr	Sprite1,8*5
+	PutSpriteYAddr	Sprite1,8*5
+	PutSpriteXAddr	Sprite1,8*4
 	ld	a,ANIM_DOWN_START+1
 	ld	[Sprite1TileNum],a
 	ld	a,%00000000
 	ld	[Sprite1Flags],a
 	
-	PutSpriteYAddr	Sprite2,8*5
-	PutSpriteXAddr	Sprite2,8*6
+	PutSpriteYAddr	Sprite2,8*4
+	PutSpriteXAddr	Sprite2,8*5
 	ld	a,ANIM_DOWN_START+2
 	ld	[Sprite2TileNum],a
 	ld	a,%00000000
 	ld	[Sprite2Flags],a
 	
-	PutSpriteYAddr	Sprite3,8*6
-	PutSpriteXAddr	Sprite3,8*6
+	PutSpriteYAddr	Sprite3,8*5
+	PutSpriteXAddr	Sprite3,8*5
 	ld	a,ANIM_DOWN_START+3
 	ld	[Sprite3TileNum],a
 	ld	a,%00000000
@@ -45,6 +45,7 @@ PlayerInit::
 
 PlayerMovement::
 	push af
+	push bc
 	ld a,[player_moving]			; sprawdz czy postac jest w ruchu (player_moving <> 0)
 	ld b,0
 	cp b
@@ -56,6 +57,7 @@ PlayerMovement::
 .move:
 	call perform_movement
 .end:
+	pop bc
 	pop af
 	ret
 	
@@ -161,6 +163,7 @@ button_right:						; obsluga ruchu w prawo
 	ld a,1
 	ld [player_moving],a			; ustaw flage ruchu na 1 [player_moving]
 	ld a,ANIM_RIGHT_START
+	call set_animation_frame
 	ld [curr_anim_first_frame],a
 	ld a,ANIM_RIGHT_STOP
 	ld [curr_anim_last_frame],a
@@ -174,6 +177,7 @@ button_left:
 	ld a,1
 	ld [player_moving],a
 	ld a,ANIM_LEFT_START
+	call set_animation_frame
 	ld [curr_anim_first_frame],a
 	ld a,ANIM_LEFT_STOP
 	ld [curr_anim_last_frame],a
@@ -187,6 +191,7 @@ button_up:
 	ld a,1
 	ld [player_moving],a
 	ld a,ANIM_UP_START
+	call set_animation_frame
 	ld [curr_anim_first_frame],a
 	ld a,ANIM_UP_STOP
 	ld [curr_anim_last_frame],a
@@ -200,6 +205,7 @@ button_down:
 	ld a,1
 	ld [player_moving],a
 	ld a,ANIM_DOWN_START
+	call set_animation_frame
 	ld [curr_anim_first_frame],a
 	ld a,ANIM_DOWN_STOP
 	ld [curr_anim_last_frame],a
@@ -220,6 +226,17 @@ set_player_position_y:
 	PutSpriteYAddr	Sprite3,a
 	ret
 	
+set_animation_frame:
+	ld [Sprite0TileNum],a
+	inc a
+	ld [Sprite1TileNum],a
+	inc a
+	ld [Sprite2TileNum],a
+	inc a
+	ld [Sprite3TileNum],a
+	sub 3
+	ret
+	
 AnimatePlayer::						; animacja postaci gracza
 	push af
 	push bc
@@ -231,26 +248,30 @@ AnimatePlayer::						; animacja postaci gracza
 	ld b,a
 	ld a,[vblank_count]
 	cp b
-	jr z,.end						; jesli jestesmy to zakoncz
+	jp z,.end						; jesli jestesmy to zakoncz
 	ld b,a
 	and 256-4						; zmieniamy klatke animacji co 4 vblanki
 	cp b
-	jr nz,.end						; jesli jestesmy w n % 4 =0 vblanku to
+	jp nz,.end						; jesli nie jestesmy w n%4=0 vblanku to zakoncz
 	ld a,[curr_anim_last_frame]
 	ld c,a
 	ld a,[Sprite0TileNum]
 	add a,4							; zobacz czy mamy kolejna klatke do animacji
 	cp c
-	jr nz,.next_frame				; jesli mamy to ustaw ja dla wszystkich 4 sprite'ow
-	jr z,.first_frame				; jesli nie mamy to wroc do klatki 0 (dla wszystkich 4 sprite'ow)
+	jp nz,.next_frame				; jesli mamy to ustaw ja dla wszystkich 4 sprite'ow
+	jp z,.first_frame				; jesli nie mamy to wroc do klatki 0 (dla wszystkich 4 sprite'ow)
 .next_frame:
 	ld [Sprite0TileNum],a
+	debug_out "Sprite0 tile: %a%"
 	inc a
 	ld [Sprite1TileNum],a
+	debug_out "Sprite1 tile: %a%"
 	inc a
 	ld [Sprite2TileNum],a
+	debug_out "Sprite2 tile: %a%"
 	inc a
 	ld [Sprite3TileNum],a
+	debug_out "Sprite3 tile: %a%"
 	jr .end
 .first_frame:
 	ld a,[curr_anim_first_frame]
