@@ -151,7 +151,7 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 .finish_movement					; koniec ruchu - ustaw flage player_moving = 0
 	xor a
 	ld [player_moving],a
-	debug_out "movement finished"
+	debug_log "movement finished"
 .end
 	pop bc
 	pop af
