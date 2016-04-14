@@ -2,6 +2,7 @@ INCLUDE "inc/player.inc"
 INCLUDE "inc/sprite.inc"
 INCLUDE "inc/vars.inc"
 INCLUDE "inc/hardware.inc"
+INCLUDE "res/map1.inc"
 
 SECTION "Player code", HOME
 
@@ -151,11 +152,34 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 .finish_movement					; koniec ruchu - ustaw flage player_moving = 0
 	xor a
 	ld [player_moving],a
-	debug_log "movement finished"
+	call debug_player_info
 .end
 	pop bc
 	pop af
 	ret
+	
+debug_player_info:
+	push af
+	push hl
+	push bc
+	ld hl,MapDataPLN1-MapDataPLN0
+	GetSpriteXAddr Sprite3
+	ld b,a			; b=X
+	GetSpriteYAddr Sprite3
+	ld c,a			; c=Y
+	REPT	3		; divide h and l by 8
+	srl	b
+	srl	c
+	ENDR
+	REPT 5
+	sla b
+	ENDR
+	debug_log "plane1 address: %hl% x%b% y%c%"
+	pop af
+	pop hl
+	pop bc
+	ret
+	
 	
 button_right:						; obsluga ruchu w prawo
 	push af
