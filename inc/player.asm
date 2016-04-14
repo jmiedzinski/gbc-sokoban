@@ -8,28 +8,28 @@ SECTION "Player code", HOME
 PlayerInit::
 	push af
 	PutSpriteYAddr	Sprite0,8*4		; ustaw pozycje kafelka Sprite0 w 0,0
-	PutSpriteXAddr	Sprite0,8*4
+	PutSpriteXAddr	Sprite0,8*3
  	ld	a,ANIM_DOWN_START		; ustaw w A numer kafelka
  	ld 	[Sprite0TileNum],a      	; zapisz wartosc A pod adresem Sprite0TileNum
  	ld	a,%00000000         		; ustaw flagi dla kafelka Sprite0
  	ld	[Sprite0Flags],a        	; zapisz flagi pod adresem Sprite0Flags
 	
 	PutSpriteYAddr	Sprite1,8*5
-	PutSpriteXAddr	Sprite1,8*4
+	PutSpriteXAddr	Sprite1,8*3
 	ld	a,ANIM_DOWN_START+1
 	ld	[Sprite1TileNum],a
 	ld	a,%00000000
 	ld	[Sprite1Flags],a
 	
 	PutSpriteYAddr	Sprite2,8*4
-	PutSpriteXAddr	Sprite2,8*5
+	PutSpriteXAddr	Sprite2,8*4
 	ld	a,ANIM_DOWN_START+2
 	ld	[Sprite2TileNum],a
 	ld	a,%00000000
 	ld	[Sprite2Flags],a
 	
 	PutSpriteYAddr	Sprite3,8*5
-	PutSpriteXAddr	Sprite3,8*5
+	PutSpriteXAddr	Sprite3,8*4
 	ld	a,ANIM_DOWN_START+3
 	ld	[Sprite3TileNum],a
 	ld	a,%00000000
@@ -151,6 +151,7 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 .finish_movement					; koniec ruchu - ustaw flage player_moving = 0
 	xor a
 	ld [player_moving],a
+	debug_out "movement finished"
 .end
 	pop bc
 	pop af
@@ -262,16 +263,12 @@ AnimatePlayer::						; animacja postaci gracza
 	jp z,.first_frame				; jesli nie mamy to wroc do klatki 0 (dla wszystkich 4 sprite'ow)
 .next_frame:
 	ld [Sprite0TileNum],a
-	debug_out "Sprite0 tile: %a%"
 	inc a
 	ld [Sprite1TileNum],a
-	debug_out "Sprite1 tile: %a%"
 	inc a
 	ld [Sprite2TileNum],a
-	debug_out "Sprite2 tile: %a%"
 	inc a
 	ld [Sprite3TileNum],a
-	debug_out "Sprite3 tile: %a%"
 	jr .end
 .first_frame:
 	ld a,[curr_anim_first_frame]

@@ -1,4 +1,4 @@
-; TILES.INC
+; MAP_TILES.INC
 ;
 ; Include File.
 ;
@@ -10,7 +10,7 @@
 ;   Compression          : None.
 ;   Counter              : None.
 ;   Tile size            : 8 x 8
-;   Tiles                : 0 to 30
+;   Tiles                : 0 to 20
 ;
 ;   Palette colors       : None.
 ;   SGB Palette          : None.
@@ -22,9 +22,9 @@
 
 
 ; Bank of tiles.
-TileDataBank EQU 0
+MapTileDataBank EQU 0
 
 ; Start of tile array.
- GLOBAL TileData
+ GLOBAL MapTileData
 
-; End of TILES.INC
+; End of MAP_TILES.INC

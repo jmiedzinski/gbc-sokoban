@@ -4,7 +4,7 @@ INCLUDE "inc/vars.inc"						; moje zmienne w niskim RAM'ie
 INCLUDE "inc/memory.inc"					; obsluga pamieci
 INCLUDE "inc/keypad.inc"					; obsluga przyciskow
 INCLUDE "inc/sprite.inc"					; obsluga sprite'ow
-INCLUDE "res/tiles.z80"
+INCLUDE "res/map_tiles.z80"
 INCLUDE "res/player_tiles.z80"
 INCLUDE "res/map1.z80"
 INCLUDE "inc/player.inc"
@@ -61,7 +61,7 @@ main:
 	ld	[rSCY],a		; skopiuj wartosc a do rejestru scroll Y dla ekranu
 						; teraz rSCX i rSCY wskazuja na lewy gorny rog ekranu
 						
-	ld hl,MapData	 				; Ustaw adres TileMapLabel (pod ta nazwa jest wyexportowana mapa z edytora) w HL
+	ld hl,MapDataPLN0 				; Ustaw adres TileMapLabel (pod ta nazwa jest wyexportowana mapa z edytora) w HL
 	ld de, _SCRN0+0+(SCRN_VY_B*0)	; ustaw adres docelowy (row 0, col 0)
 	ld bc, 32*32					; ustaw rozmiar mapy
 	call mem_CopyVRAM				; DO THE MAGIC 
@@ -85,7 +85,7 @@ main:
 	ld	a,LCDCF_ON|LCDCF_BG8000|LCDCF_BG9800|LCDCF_BGON|LCDCF_OBJ8|LCDCF_OBJON	; ustaw w A flagi sterujace ekranem
 	ld	[rLCDC],a       														; zaladuj A do rejestru sterujacego LCD rLCLC - efektywnie: wlacz LCD
 	
-	ld hl, TileData																; ustaw adres etykiety TileData (tiles.z80) w HL
+	ld hl, MapTileData																; ustaw adres etykiety TileData (tiles.z80) w HL
 	ld de, _VRAM       															; ustaw adres docelowy ($8000) w DE
 	ld bc, $01f0																; ustaw ilosc bajtow do skopiowania w BC (jeden kafelek 8x8 = 16b * ilosc kafelkow)
 	call mem_Copy 																; skopiuj pamiec
@@ -104,9 +104,8 @@ main:
 MainLoop:
 	halt
 	nop
-;	ld a,[player_moving]
-;	debug_out "move: %a%"
-;	xor a
+	ld a,[player_moving]
+	xor a
 	REPT 10
 	nop
 	ENDR
