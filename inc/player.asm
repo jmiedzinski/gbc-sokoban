@@ -46,6 +46,8 @@ PlayerInit::
 
 PlayerMovement::
 	push af
+	xor a
+	ld [collision],a
 	push bc
 	ld a,[player_moving]			; sprawdz czy postac jest w ruchu (player_moving <> 0)
 	ld b,0
@@ -105,6 +107,12 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	sub 8							; odejmij 8 od biezacej wspolrzednej X sprite'a
 	ld c,a							; zapisz do C
 	ld a,b							; przywroc wartosc A sprzed odejmowania
+	call check4coll_right
+	ld a,[collision]
+	ld e,1
+	cp e
+	jp z,.finish_movement
+	ld a,b
 	call set_player_position_x
 	and 256-16
 	cp b
@@ -117,6 +125,12 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	ld b,a
 	sub 8
 	ld c,a
+	ld a,b
+	call check4coll_left
+	ld a,[collision]
+	ld e,1
+	cp e
+	jp z,.finish_movement
 	ld a,b
 	call set_player_position_x
 	and 256-16
@@ -131,6 +145,12 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	sub 8
 	ld c,a
 	ld a,b
+	call check4coll_down
+	ld a,[collision]
+	ld e,1
+	cp e
+	jp z,.finish_movement
+	ld a,b
 	call set_player_position_y
 	and 256-16
 	cp c
@@ -144,6 +164,12 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	sub 8
 	ld c,a
 	ld a,b
+	call check4coll_up
+	ld a,[collision]
+	ld e,1
+	cp e
+	jp z,.finish_movement
+	ld a,b
 	call set_player_position_y
 	and 256-16
 	cp c
@@ -152,52 +178,168 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 .finish_movement					; koniec ruchu - ustaw flage player_moving = 0
 	xor a
 	ld [player_moving],a
-	call debug_player_info
 .end
 	pop bc
 	pop af
 	ret
 
-;* memory location = (x+rSCX)/8+((y+rSCY)/8)*SCRN_VY_B+z
-debug_player_info:
+;* check underlying tile if it's blocking or not
+;* tile blocking data is exported as Plane1
+;* Plane1 is loaded into RAM under $C200
+;* formula to check that data is as follows:
+;* memory location = (x+rSCX)/8+((y+rSCY)/8)*SCRN_VY_B+$C200
+;*
+;* input:
+;* hl - x,y coordinates of tile to check
+;*
+;* output:
+;* b 0/1 (non-blocking/blocking)
+
+get_collision_data:
 	push af
 	push hl
-	push bc
-	ld hl,MapDataPLN1-MapDataPLN0
-	GetSpriteXAddr Sprite3
-	ld b,a							; b=X
+	push de
 	ld a,[rSCX]
-	add b
-	ld b,a							; b=x+rSCX
-	GetSpriteYAddr Sprite3
-	ld c,a							; c=Y
+	add h
+	ld h,a							; h=x+rSCX
 	ld a,[rSCY]
-	add c
-	ld c,a							; c=y+rSCY
-	debug_log "x=%b% y=%c%"
+	add l
+	ld l,a							; l=y+rSCY
 	REPT	3						; divide b and c by 8
-	srl	b
-	srl	c
-	ENDR							; b=(x+rSCX)/8, c=(y+rSCY)/8
-	debug_log "x/8=%b% y/8=%c%"	
-	ld e,b
-	ld b,0
+	srl	h
+	srl	l
+	ENDR							; h=(x+rSCX)/8, l=(y+rSCY)/8
+	ld e,h
+	ld h,0
 	REPT 5
-	sla c
-	rl b
+	sla l
+	rl h
 	ENDR
-	ld b,e							; b=(x+rSCX)/8, c=((y+rSCY)/8) * 32
-	debug_log "tx=%b% ty=%c%"	
-	ld hl,MapDataPLN1
-	debug_log "hl=%hl%"
+	ld d,0							; b=(x+rSCX)/8, c=((y+rSCY)/8) * 32
+	add hl,de
+	ld bc,$c200
 	add hl,bc
-	debug_log "hl+bc=%hl%"
 	ld a,[hl]
-
-	debug_log "plane1 address: %hl% x%b% y%c% address %hl% data %a%"
+	ld b,a
 	pop af
 	pop hl
+	pop de
+	ret
+	
+check4coll_down:
+	push af
+	push bc
+	push hl
+	GetSpritePos Sprite1
+	ld a,l
+	add 8
+	ld l,a
+	call get_collision_data
+	ld a,b
+	ld c,1
+	cp c
+	jp z,.collision\@
+	GetSpritePos Sprite3
+	ld a,l
+	add 8
+	ld l,a
+	call get_collision_data
+	ld a,b
+	ld c,1
+	cp c
+	jp nz,.end\@
+.collision\@:
+	ld a,1
+	ld [collision],a
+;	debug_log "collision while moving down"
+.end\@
+	pop af
 	pop bc
+	pop hl
+	ret
+	
+check4coll_up:
+	push af
+	push bc
+	push hl
+	GetSpritePos Sprite0
+	call get_collision_data
+	ld a,b
+	ld c,1
+	cp c
+	jp z,.collision\@
+	GetSpritePos Sprite2
+	call get_collision_data
+	ld a,b
+	ld c,1
+	cp c
+	jp nz,.end\@
+.collision\@:
+	ld a,1
+	ld [collision],a
+;	debug_log "collision while moving down"
+.end\@
+	pop af
+	pop bc
+	pop hl
+	ret
+	
+check4coll_left:
+	push af
+	push bc
+	push hl
+	GetSpritePos Sprite0
+	call get_collision_data
+	ld a,b
+	ld c,1
+	cp c
+	jp z,.collision\@
+	GetSpritePos Sprite1
+	call get_collision_data
+	ld a,b
+	ld c,1
+	cp c
+	jp nz,.end\@
+.collision\@:
+	ld a,1
+	ld [collision],a
+;	debug_log "collision while moving down"
+.end\@
+	pop af
+	pop bc
+	pop hl
+	ret
+	
+check4coll_right:
+	push af
+	push bc
+	push hl
+	GetSpritePos Sprite2
+	ld a,h
+	add 8
+	ld h,a
+	call get_collision_data
+	ld a,b
+	ld c,1
+	cp c
+	jp z,.collision\@
+	GetSpritePos Sprite3
+	ld a,h
+	add 8
+	ld h,a
+	call get_collision_data
+	ld a,b
+	ld c,1
+	cp c
+	jp nz,.end\@
+.collision\@:
+	ld a,1
+	ld [collision],a
+;	debug_log "collision while moving down"
+.end\@
+	pop af
+	pop bc
+	pop hl
 	ret
 	
 	
@@ -262,11 +404,6 @@ set_player_position_x:
 	PutSpriteXAddr	Sprite1,c
 	PutSpriteXAddr	Sprite2,a
 	PutSpriteXAddr	Sprite3,a
-	push af
-	ld a,[player_bbox_x]
-	ld a,c
-	ld [player_bbox_x],a
-	pop af
 	ret
 	
 set_player_position_y:
@@ -274,12 +411,6 @@ set_player_position_y:
 	PutSpriteYAddr	Sprite1,a
 	PutSpriteYAddr	Sprite2,c
 	PutSpriteYAddr	Sprite3,a
-	push af
-	ld a,[player_bbox_y]
-	ld a,c
-	add PLAYER_SIZE
-	ld [player_bbox_y],a
-	pop af
 	ret
 	
 set_animation_frame:

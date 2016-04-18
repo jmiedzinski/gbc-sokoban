@@ -59,4 +59,16 @@ GetSpriteYAddr:	MACRO
 				sub	16
 				ENDM
 				
+GetSpritePos:	MACRO
+				push af
+				ld a,[\1XAddr]
+				sub 8
+				ld h,a
+				ld a,[\1YAddr]
+				sub	16
+				ld l,a
+				pop af
+				ENDM
+				
+				
 ENDC			; SPRITE_INC

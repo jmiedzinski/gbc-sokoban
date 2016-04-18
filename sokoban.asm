@@ -77,6 +77,11 @@ main:
 	ld	bc,TitleEnd-Title			; ustaw w BC ilosc bajtow do skopiowania - dlugosc napisu spod Title
 	call mem_Copy					; wywolaj mem_Copy, ktora przekopiuje 13 bajtow spod adresu w HL pod adres w DE
 	
+	ld hl,MapDataPLN1
+	ld de,$c200
+	ld bc,$400
+	call mem_Copy
+	
 	ld	a,0							; zerowanie obszaru pamieci, w ktorym znajda sie dane sprite'ow (nie graficzne)
 	ld	hl,OAMDATALOC
 	ld	bc,OAMDATALENGTH

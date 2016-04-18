@@ -17,6 +17,7 @@ debug_log:	MACRO
 			ENDM
 			
 TMA_MOD_16HZ	EQU 0
+MAP_PLANES_OFFSET	EQU $400
 
 GLOBAL timer_overflow_count
 GLOBAL vblank_count
@@ -27,8 +28,7 @@ GLOBAL move_direction
 GLOBAL buttons_input
 GLOBAL curr_anim_first_frame
 GLOBAL curr_anim_last_frame
-GLOBAL player_bbox_x
-GLOBAL player_bbox_y
+GLOBAL collision
 
 GLOBAL Sprite0YAddr
 GLOBAL Sprite0XAddr
