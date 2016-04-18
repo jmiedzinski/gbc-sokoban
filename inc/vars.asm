@@ -11,6 +11,8 @@ move_direction::		DS 1
 buttons_input::			DS 1
 curr_anim_first_frame	DS 1
 curr_anim_last_frame	DS 1
+player_bbox_x			DS 1
+player_bbox_y			DS 1
 
 SECTION "WRAM_C1",BSS[$C100]
 	SpriteAttr	Sprite0

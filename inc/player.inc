@@ -10,6 +10,8 @@ ANIM_RIGHT_STOP			EQU $a4
 ANIM_UP_START			EQU $a4
 ANIM_UP_STOP			EQU $b0
 
+PLAYER_SIZE				EQU 16
+
 GLOBAL PlayerInit
 GLOBAL PlayerMovement
 GLOBAL AnimatePlayer

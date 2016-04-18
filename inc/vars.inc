@@ -27,6 +27,8 @@ GLOBAL move_direction
 GLOBAL buttons_input
 GLOBAL curr_anim_first_frame
 GLOBAL curr_anim_last_frame
+GLOBAL player_bbox_x
+GLOBAL player_bbox_y
 
 GLOBAL Sprite0YAddr
 GLOBAL Sprite0XAddr

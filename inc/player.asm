@@ -157,24 +157,44 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	pop bc
 	pop af
 	ret
-	
+
+;* memory location = (x+rSCX)/8+((y+rSCY)/8)*SCRN_VY_B+z
 debug_player_info:
 	push af
 	push hl
 	push bc
 	ld hl,MapDataPLN1-MapDataPLN0
 	GetSpriteXAddr Sprite3
-	ld b,a			; b=X
+	ld b,a							; b=X
+	ld a,[rSCX]
+	add b
+	ld b,a							; b=x+rSCX
 	GetSpriteYAddr Sprite3
-	ld c,a			; c=Y
-	REPT	3		; divide h and l by 8
+	ld c,a							; c=Y
+	ld a,[rSCY]
+	add c
+	ld c,a							; c=y+rSCY
+	debug_log "x=%b% y=%c%"
+	REPT	3						; divide b and c by 8
 	srl	b
 	srl	c
-	ENDR
+	ENDR							; b=(x+rSCX)/8, c=(y+rSCY)/8
+	debug_log "x/8=%b% y/8=%c%"	
+	ld e,b
+	ld b,0
 	REPT 5
-	sla b
+	sla c
+	rl b
 	ENDR
-	debug_log "plane1 address: %hl% x%b% y%c%"
+	ld b,e							; b=(x+rSCX)/8, c=((y+rSCY)/8) * 32
+	debug_log "tx=%b% ty=%c%"	
+	ld hl,MapDataPLN1
+	debug_log "hl=%hl%"
+	add hl,bc
+	debug_log "hl+bc=%hl%"
+	ld a,[hl]
+
+	debug_log "plane1 address: %hl% x%b% y%c% address %hl% data %a%"
 	pop af
 	pop hl
 	pop bc
@@ -242,6 +262,11 @@ set_player_position_x:
 	PutSpriteXAddr	Sprite1,c
 	PutSpriteXAddr	Sprite2,a
 	PutSpriteXAddr	Sprite3,a
+	push af
+	ld a,[player_bbox_x]
+	ld a,c
+	ld [player_bbox_x],a
+	pop af
 	ret
 	
 set_player_position_y:
@@ -249,6 +274,12 @@ set_player_position_y:
 	PutSpriteYAddr	Sprite1,a
 	PutSpriteYAddr	Sprite2,c
 	PutSpriteYAddr	Sprite3,a
+	push af
+	ld a,[player_bbox_y]
+	ld a,c
+	add PLAYER_SIZE
+	ld [player_bbox_y],a
+	pop af
 	ret
 	
 set_animation_frame:

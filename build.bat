@@ -47,4 +47,4 @@ del player.obj
 del sokoban.obj
 del LINK
 
-start %EMU_HOME%\no$gmb %PROJECT_HOME%\%project_name%.gb
+if exist %project_name%.gb start %EMU_HOME%\no$gmb %PROJECT_HOME%\%project_name%.gb
