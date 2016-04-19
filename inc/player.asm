@@ -100,7 +100,6 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	cp PADF_DOWN
 	jp z,.move_down
 .move_right:						; w prawo: przesun wszystkie sprite'y o 1 w prawo i sprawdz czy nie sa juz w docelowym miejscu
-;	debug_out "perform_movement->left"
 	GetSpriteXAddr	Sprite3
 	inc a							; dodaj 1 do biezace wspolrzednej X sprite'a
 	ld b,a							; skopiuj do B
@@ -119,7 +118,6 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	jp z,.finish_movement			; jesli pozycja po przesunieciu o 1 dzieli sie bez reszty przez 16 to znaczy, ze trzeba zakonczyc ruch 
 	jp nz,.end						; w przeciwnym wypadku po prostu zakoncz procedure bez zmiany flagi player_moving
 .move_left:							; analogicznie jak move_right tyle ze przesuwamy sie w lewo a wiec odejmujemy 1 od biezacej wspolrzednej X
-;	debug_out "perform_movement->left"
 	GetSpriteXAddr	Sprite3
 	dec a
 	ld b,a
@@ -138,7 +136,6 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	jp z,.finish_movement
 	jp nz,.end
 .move_down:							; analogicznie jak move_right tyle ze operujemy na wspolrzednej Y
-;	debug_out "perform_movement->left"
 	GetSpriteYAddr	Sprite3
 	inc a
 	ld b,a
@@ -157,7 +154,6 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	jp z,.finish_movement
 	jp nz,.end
 .move_up:							; analogicznie jak w move_left tyle ze operujemy na wspolrzednej Y
-;	debug_out "perform_movement->left"
 	GetSpriteYAddr	Sprite3
 	dec a
 	ld b,a
@@ -251,7 +247,6 @@ check4coll_down:
 .collision\@:
 	ld a,1
 	ld [collision],a
-;	debug_log "collision while moving down"
 .end\@
 	pop af
 	pop bc
@@ -263,12 +258,18 @@ check4coll_up:
 	push bc
 	push hl
 	GetSpritePos Sprite0
+	ld a,l
+	dec a
+	ld l,a
 	call get_collision_data
 	ld a,b
 	ld c,1
 	cp c
 	jp z,.collision\@
 	GetSpritePos Sprite2
+	ld a,l
+	dec a
+	ld l,a
 	call get_collision_data
 	ld a,b
 	ld c,1
@@ -277,7 +278,6 @@ check4coll_up:
 .collision\@:
 	ld a,1
 	ld [collision],a
-;	debug_log "collision while moving down"
 .end\@
 	pop af
 	pop bc
@@ -289,12 +289,18 @@ check4coll_left:
 	push bc
 	push hl
 	GetSpritePos Sprite0
+	ld a,h
+	dec a
+	ld h,a
 	call get_collision_data
 	ld a,b
 	ld c,1
 	cp c
 	jp z,.collision\@
 	GetSpritePos Sprite1
+	ld a,h
+	dec a
+	ld h,a
 	call get_collision_data
 	ld a,b
 	ld c,1
@@ -303,7 +309,6 @@ check4coll_left:
 .collision\@:
 	ld a,1
 	ld [collision],a
-;	debug_log "collision while moving down"
 .end\@
 	pop af
 	pop bc
@@ -316,7 +321,7 @@ check4coll_right:
 	push hl
 	GetSpritePos Sprite2
 	ld a,h
-	add 8
+	add 9
 	ld h,a
 	call get_collision_data
 	ld a,b
@@ -325,7 +330,7 @@ check4coll_right:
 	jp z,.collision\@
 	GetSpritePos Sprite3
 	ld a,h
-	add 8
+	add 9
 	ld h,a
 	call get_collision_data
 	ld a,b
@@ -335,7 +340,6 @@ check4coll_right:
 .collision\@:
 	ld a,1
 	ld [collision],a
-;	debug_log "collision while moving down"
 .end\@
 	pop af
 	pop bc
