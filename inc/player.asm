@@ -179,18 +179,20 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	pop af
 	ret
 
-;* check underlying tile if it's blocking or not
-;* tile blocking data is exported as Plane1
-;* Plane1 is loaded into RAM under $C200
-;* formula to check that data is as follows:
-;* memory location = (x+rSCX)/8+((y+rSCY)/8)*SCRN_VY_B+$C200
+;******************************************************************************
 ;*
-;* input:
-;* hl - x,y coordinates of tile to check
+;* 		Check underlying tile if it's blocking or not blocking. Tile data 
+;*		is exported as Plane1. Plane1 is loaded into RAM under $C200.
+;* 		Formula to check that data is as follows:
+;* 		memory location = (x+rSCX)/8+((y+rSCY)/8)*SCRN_VY_B+$C200
 ;*
-;* output:
-;* b 0/1 (non-blocking/blocking)
-
+;* 		input:
+;* 			hl - x,y coordinates of tile to check
+;*
+;* 		output:
+;* 			b - 0/1 (non-blocking/blocking)
+;*
+;******************************************************************************
 get_collision_data:
 	push af
 	push hl
@@ -221,7 +223,20 @@ get_collision_data:
 	pop hl
 	pop de
 	ret
-	
+
+;******************************************************************************
+;*		Checks for collision while moving down.
+;*
+;*		|---|---|	routine is taking x,y coords of tiles 1 and 3
+;*		| 0 | 2 |	then adding 8 to y component and checking if this new 
+;*		|---|---|	point (x,y+8) lays over blocking background tile.
+;*		| 1 | 3 |	If yes then collision flag is set to 1.
+;*		|---|---|
+;*
+;*		input: none
+;*		output: none
+;*
+;******************************************************************************	
 check4coll_down:
 	push af
 	push bc
@@ -252,7 +267,20 @@ check4coll_down:
 	pop bc
 	pop hl
 	ret
-	
+
+;******************************************************************************
+;*		Checks for collision while moving up.
+;*
+;*		|---|---|	routine is taking x,y coords of tiles 0 and 2
+;*		| 0 | 2 |	then substracting 1 from y component and checking if this new 
+;*		|---|---|	point (x,y-1) lays over blocking background tile.
+;*		| 1 | 3 |	If yes then collision flag is set to 1.
+;*		|---|---|
+;*
+;*		input: none
+;*		output: none
+;*
+;******************************************************************************	
 check4coll_up:
 	push af
 	push bc
@@ -283,7 +311,20 @@ check4coll_up:
 	pop bc
 	pop hl
 	ret
-	
+
+;******************************************************************************
+;*		Checks for collision while moving left.
+;*
+;*		|---|---|	routine is taking x,y coords of tiles 0 and 1
+;*		| 0 | 2 |	then substracting 1 from x component and checking if this new 
+;*		|---|---|	point (x-1,y) lays over blocking background tile.
+;*		| 1 | 3 |	If yes then collision flag is set to 1.
+;*		|---|---|
+;*
+;*		input: none
+;*		output: none
+;*
+;******************************************************************************		
 check4coll_left:
 	push af
 	push bc
@@ -314,7 +355,20 @@ check4coll_left:
 	pop bc
 	pop hl
 	ret
-	
+
+;******************************************************************************
+;*		Checks for collision while moving right.
+;*
+;*		|---|---|	routine is taking x,y coords of tiles 2 and 3
+;*		| 0 | 2 |	then adding 8 to x component and checking if this new 
+;*		|---|---|	point (x+8,y) lays over blocking background tile.
+;*		| 1 | 3 |	If yes then collision flag is set to 1.
+;*		|---|---|
+;*
+;*		input: none
+;*		output: none
+;*
+;******************************************************************************		
 check4coll_right:
 	push af
 	push bc
