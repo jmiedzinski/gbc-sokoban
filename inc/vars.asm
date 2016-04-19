@@ -12,6 +12,7 @@ buttons_input::			DS 1
 curr_anim_first_frame	DS 1
 curr_anim_last_frame	DS 1
 collision::				DS 1
+player_animating::		DS 1
 
 SECTION "WRAM_C1",BSS[$C100]
 	SpriteAttr	Sprite0

@@ -110,13 +110,13 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	ld a,[collision]
 	ld e,1
 	cp e
-	jp z,.finish_movement
+	jp z,.finish_movement\@
 	ld a,b
 	call set_player_position_x
 	and 256-16
 	cp b
-	jp z,.finish_movement			; jesli pozycja po przesunieciu o 1 dzieli sie bez reszty przez 16 to znaczy, ze trzeba zakonczyc ruch 
-	jp nz,.end						; w przeciwnym wypadku po prostu zakoncz procedure bez zmiany flagi player_moving
+	jp z,.finish_movement\@			; jesli pozycja po przesunieciu o 1 dzieli sie bez reszty przez 16 to znaczy, ze trzeba zakonczyc ruch 
+	jp nz,.end\@					; w przeciwnym wypadku po prostu zakoncz procedure bez zmiany flagi player_moving
 .move_left:							; analogicznie jak move_right tyle ze przesuwamy sie w lewo a wiec odejmujemy 1 od biezacej wspolrzednej X
 	GetSpriteXAddr	Sprite3
 	dec a
@@ -128,13 +128,13 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	ld a,[collision]
 	ld e,1
 	cp e
-	jp z,.finish_movement
+	jp z,.finish_movement\@
 	ld a,b
 	call set_player_position_x
 	and 256-16
 	cp b
-	jp z,.finish_movement
-	jp nz,.end
+	jp z,.finish_movement\@
+	jp nz,.end\@
 .move_down:							; analogicznie jak move_right tyle ze operujemy na wspolrzednej Y
 	GetSpriteYAddr	Sprite3
 	inc a
@@ -146,13 +146,14 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	ld a,[collision]
 	ld e,1
 	cp e
-	jp z,.finish_movement
+	jp z,.finish_movement\@
 	ld a,b
+	call scroll_down_if_needed
 	call set_player_position_y
 	and 256-16
 	cp c
-	jp z,.finish_movement
-	jp nz,.end
+	jp z,.finish_movement\@
+	jp nz,.end\@
 .move_up:							; analogicznie jak w move_left tyle ze operujemy na wspolrzednej Y
 	GetSpriteYAddr	Sprite3
 	dec a
@@ -164,24 +165,72 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	ld a,[collision]
 	ld e,1
 	cp e
-	jp z,.finish_movement
+	jp z,.finish_movement\@
 	ld a,b
+	call scroll_up_if_needed
 	call set_player_position_y
 	and 256-16
 	cp c
-	jp z,.finish_movement
-	jp nz,.end	
-.finish_movement					; koniec ruchu - ustaw flage player_moving = 0
+	jp z,.finish_movement\@
+	jp nz,.end\@	
+.finish_movement\@:					; koniec ruchu - ustaw flage player_moving = 0
 	xor a
 	ld [player_moving],a
-.end
+	ld [player_animating],a
+	ld a,[rSCX]
+	ld b,a
+	ld a,[rSCY]
+	ld c,a
+	GetSpriteXAddr	Sprite3
+	ld d,a
+	GetSpriteYAddr	Sprite3
+	ld e,a
+	debug_log "scX=%b% scY=%c% pX=%d% pY=%e%"
+	debug_log "%cy%carry;no-carry;"
+.end\@:
 	pop bc
 	pop af
 	ret
 
+scroll_down_if_needed:
+	push af
+	push bc
+	ld b,a				; save player centerX in b
+	sbc a,$48
+	jp c,.end\@			; if player centerX < $48 then end
+	ld a,[rSCY]
+	sbc a,$70
+	jp nc,.end\@		; if player centerX > $70 then end
+	ld a,[rSCY]
+	inc a
+	ld [rSCY],a
+.end\@:
+	pop bc
+	pop af
+	ret
+	
+scroll_up_if_needed:
+	push af
+	push bc
+	ld b,a				; save player centerX in b
+	sbc a,$70
+	jp nc,.end\@			; if player centerX < $70 then end
+	ld a,[rSCY]
+	ld c,0
+	cp c
+	jp z,.end\@
+;	sbc a,$48			; zero kurwa
+;	jp c,.end\@		; if player centerX > $48 then end
+	ld a,[rSCY]
+	dec a
+	ld [rSCY],a
+.end\@:
+	pop bc
+	pop af
+	ret
+	
 ;******************************************************************************
-;*
-;* 		Check underlying tile if it's blocking or not blocking. Tile data 
+;* 		Check underlying tile if it's blocking or non blocking. Tile data 
 ;*		is exported as Plane1. Plane1 is loaded into RAM under $C200.
 ;* 		Formula to check that data is as follows:
 ;* 		memory location = (x+rSCX)/8+((y+rSCY)/8)*SCRN_VY_B+$C200
@@ -219,9 +268,9 @@ get_collision_data:
 	add hl,bc
 	ld a,[hl]
 	ld b,a
-	pop af
-	pop hl
 	pop de
+	pop hl
+	pop af
 	ret
 
 ;******************************************************************************
@@ -262,10 +311,10 @@ check4coll_down:
 .collision\@:
 	ld a,1
 	ld [collision],a
-.end\@
-	pop af
-	pop bc
+.end\@:
 	pop hl
+	pop bc
+	pop af
 	ret
 
 ;******************************************************************************
@@ -306,10 +355,10 @@ check4coll_up:
 .collision\@:
 	ld a,1
 	ld [collision],a
-.end\@
-	pop af
-	pop bc
+.end\@:
 	pop hl
+	pop bc
+	pop af
 	ret
 
 ;******************************************************************************
@@ -350,10 +399,10 @@ check4coll_left:
 .collision\@:
 	ld a,1
 	ld [collision],a
-.end\@
-	pop af
-	pop bc
+.end\@:
 	pop hl
+	pop bc
+	pop af
 	ret
 
 ;******************************************************************************
@@ -394,10 +443,10 @@ check4coll_right:
 .collision\@:
 	ld a,1
 	ld [collision],a
-.end\@
-	pop af
-	pop bc
+.end\@:
 	pop hl
+	pop bc
+	pop af
 	ret
 	
 	
@@ -407,6 +456,7 @@ button_right:						; obsluga ruchu w prawo
 	ld [move_direction],a
 	ld a,1
 	ld [player_moving],a			; ustaw flage ruchu na 1 [player_moving]
+	ld [player_animating],a
 	ld a,ANIM_RIGHT_START
 	call set_animation_frame
 	ld [curr_anim_first_frame],a
@@ -421,6 +471,7 @@ button_left:
 	ld [move_direction],a
 	ld a,1
 	ld [player_moving],a
+	ld [player_animating],a
 	ld a,ANIM_LEFT_START
 	call set_animation_frame
 	ld [curr_anim_first_frame],a
@@ -435,6 +486,7 @@ button_up:
 	ld [move_direction],a
 	ld a,1
 	ld [player_moving],a
+	ld [player_animating],a
 	ld a,ANIM_UP_START
 	call set_animation_frame
 	ld [curr_anim_first_frame],a
@@ -449,6 +501,7 @@ button_down:
 	ld [move_direction],a
 	ld a,1
 	ld [player_moving],a
+	ld [player_animating],a
 	ld a,ANIM_DOWN_START
 	call set_animation_frame
 	ld [curr_anim_first_frame],a
@@ -485,7 +538,7 @@ set_animation_frame:
 AnimatePlayer::						; animacja postaci gracza
 	push af
 	push bc
-	ld a,[player_moving]			; sprawdz czy postac w trakcie ruchu
+	ld a,[player_animating]			; sprawdz czy postac w trakcie ruchu
 	ld b,0
 	cp b
 	jp z,.first_frame				; jesli nie, to ustaw sprite'y dla pierwszej klatki animacji

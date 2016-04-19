@@ -29,6 +29,7 @@ GLOBAL buttons_input
 GLOBAL curr_anim_first_frame
 GLOBAL curr_anim_last_frame
 GLOBAL collision
+GLOBAL player_animating
 
 GLOBAL Sprite0YAddr
 GLOBAL Sprite0XAddr
