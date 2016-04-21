@@ -201,6 +201,8 @@ scroll_down_if_needed:
 	ld a,[rSCY]
 	sbc a,$70
 	jp nc,.end\@		; if player centerX > $70 then end
+	xor a
+	ld [player_moving],a
 	ld a,[rSCY]
 	inc a
 	ld [rSCY],a
@@ -511,17 +513,43 @@ button_down:
 	ret
 	
 set_player_position_x:
+	push af
+	push bc
+	push de
+	ld b,a
+	ld a,[player_moving]
+	ld d,0
+	cp d
+	jp z,.end\@
+	ld a,b
 	PutSpriteXAddr	Sprite0,c
 	PutSpriteXAddr	Sprite1,c
 	PutSpriteXAddr	Sprite2,a
 	PutSpriteXAddr	Sprite3,a
+.end\@:
+	pop de
+	pop bc
+	pop af
 	ret
 	
 set_player_position_y:
+	push af
+	push bc
+	push de
+	ld b,a
+	ld a,[player_moving]
+	ld d,0
+	cp d
+	jp z,.end\@
+	ld a,b
 	PutSpriteYAddr	Sprite0,c
 	PutSpriteYAddr	Sprite1,a
 	PutSpriteYAddr	Sprite2,c
 	PutSpriteYAddr	Sprite3,a
+.end\@:
+	pop de
+	pop bc
+	pop af
 	ret
 	
 set_animation_frame:
