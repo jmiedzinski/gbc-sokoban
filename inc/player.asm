@@ -167,14 +167,14 @@ perform_movement:					; wykonanie ruchu postaci w zaleznosci od kierunku
 	cp e
 	jp z,.finish_movement\@
 	ld a,b
-	call scroll_up_if_needed
+;	call scroll_up_if_needed		; tu jest jakis babol, ktory nadpisuje c mimo odlozenia na stos
 	call set_player_position_y
 	and 256-16
 	cp c
 	jp z,.finish_movement\@
 	jp nz,.end\@	
 .finish_movement\@:					; koniec ruchu - ustaw flage player_moving = 0
-	xor a
+	ld a,0
 	ld [player_moving],a
 	ld [player_animating],a
 	ld a,[rSCX]
