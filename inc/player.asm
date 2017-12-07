@@ -237,22 +237,28 @@ scroll_up_if_needed:
     push bc
 	push de
     ld b,a              		; save player centerX in b
+	ld a,[rSCY]
     sbc a,$70
-    jp nc,.move_sprites\@       ; if player centerX > $70 then move sprites (carry flag unset)
-    ld a,[rSCY]
+    jp nc,.without_sub\@       ; if player centerX > $70 then move sprites (carry flag unset)
+    ld a,b
     sbc a,$48
     jp c,.move_sprites\@     	; if player centerX < $48 then move sprites (carry flag set)
     ld a,[rSCY]
     dec a
+	ld e,$FF
+	cp e
+	jr nz,.nonzero\@
+	ld a,0
+.nonzero\@:
     ld [rSCY],a
 	jp .end\@
 .move_sprites\@:
 	ld a,b
-	jp c,.without_sub\@			; carry flag unset - we know that we're _after_ scrolling
-	sub $70						; else: we know we're _before_ scrolling, so we need substract $70
+;	jp c,.without_sub\@			; carry flag unset - we know that we're _after_ scrolling
+	sub $28						; else: we know we're _before_ scrolling, so we need substract $70
 	ld d,a						; from player posY and then use it to move sprites (both a and c registers)
 	ld a,c
-	sub $70
+	sub $28
 	ld c,a
 	ld a,d
 .without_sub\@:
