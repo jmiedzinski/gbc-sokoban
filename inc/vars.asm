@@ -1,5 +1,6 @@
 INCLUDE	"inc/vars.inc"
 INCLUDE	"inc/sprite.inc"
+INCLUDE	"inc/player.inc"
 
 SECTION "WRAM_C0",BSS[$C000]
 timer_overflow_count::	DS 1
@@ -13,6 +14,9 @@ curr_anim_first_frame	DS 1
 curr_anim_last_frame	DS 1
 collision::				DS 1
 player_animating::		DS 1
+steps_count::			DS 1
+	
+	PlayerAttr Player
 
 SECTION "WRAM_C1",BSS[$C100]
 	SpriteAttr	Sprite0

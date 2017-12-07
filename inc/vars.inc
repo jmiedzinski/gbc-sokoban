@@ -30,6 +30,12 @@ GLOBAL curr_anim_first_frame
 GLOBAL curr_anim_last_frame
 GLOBAL collision
 GLOBAL player_animating
+GLOBAL steps_count
+
+GLOBAL PlayerPosX
+GLOBAL PlayerPosY
+GLOBAL PlayerFrame
+GLOBAL PlayerFlags
 
 GLOBAL Sprite0YAddr
 GLOBAL Sprite0XAddr
