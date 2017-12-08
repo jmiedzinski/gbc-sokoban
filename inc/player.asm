@@ -152,7 +152,7 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
     cp e
     jp z,.finish_movement\@
     ld a,b
-    call scroll_down_if_needed
+    call scroll_or_move_down
     and 256-16
     cp c
     jp z,.finish_movement\@
@@ -170,7 +170,7 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
     cp e
     jp z,.finish_movement\@
     ld a,b
-    call scroll_up_if_needed
+    call scroll_or_move_up
     and 256-16
     cp c
     jp z,.finish_movement\@
@@ -191,27 +191,37 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
 	ld h,a
 	GetPlayerPosY	Player
 	ld l,a
-    debug_log "scrollX=%b% scrollY=%c% spriteX=%d% spriteY=%e% playerX=%h% playerY=%l%"
-    debug_log "%cy%carry;no-carry;"
+    debug_log "scrollX=%b% spriteX=%d% playerX=%h% scrollY=%c% spriteY=%e% playerY=%l%"
 .end\@:
 	pop hl
     pop bc
     pop af
     ret
 
-scroll_down_if_needed:
+;******************************************************************************
+;*      Move player sprites down the screen or scroll down the map
+;*		using [rSCY] register
+;*
+;*      input:
+;*          a - y coordinate of the player
+;*
+;*      output:
+;*          none
+;*
+;******************************************************************************    
+scroll_or_move_down:
     push af
     push bc
 	push de
-    ld b,a              ; save player centerX in b
+    ld b,a              		; save player centerY in b
     sbc a,$48
-    jp c,.move_sprites\@         ; if player centerX < $48 then move sprites (carry flag set)
+    jp c,.move_sprites\@        ; if player centerY < $48 then move sprites (carry flag set)
     ld a,[rSCY]
     sbc a,$70
-    jp nc,.move_sprites\@        ; if player centerX > $70 then move sprites (carry flag unset)
+    jp nc,.move_sprites\@       ; if scroll Y coordinate > $70 then move sprites (carry flag unset)
     ld a,[rSCY]
     inc a
-    ld [rSCY],a
+    ld [rSCY],a					; increment value of the [rSCY] register by 1
 	jp .end\@
 .move_sprites\@:
 	ld a,b
@@ -231,37 +241,40 @@ scroll_down_if_needed:
     pop bc
     pop af
     ret
-    
-scroll_up_if_needed:
+
+;******************************************************************************
+;*      Move player sprites up the screen or scroll map
+;*
+;*      input:
+;*          a - y coordinate of the player
+;*
+;*      output:
+;*          none
+;*
+;******************************************************************************    
+scroll_or_move_up:
     push af
     push bc
 	push de
     ld b,a              		; save player centerX in b
 	ld a,[rSCY]
     sbc a,$70
-    jp nc,.without_sub\@       ; if player centerX > $70 then move sprites (carry flag unset)
-    ld a,b
+    jp nc,.move_sprites\@       ; if scroll Y coordinate > $70 then move sprites (carry flag unset)
+	ld a,b
     sbc a,$48
-    jp c,.move_sprites\@     	; if player centerX < $48 then move sprites (carry flag set)
+    jp c,.move_sprites\@     	; if player centerY < $48 then move sprites (carry flag set)
     ld a,[rSCY]
     dec a
 	ld e,$FF
 	cp e
-	jr nz,.nonzero\@
+	jr nz,.keep_scrolling\@		; otherwise keep scrolling up
 	ld a,0
-.nonzero\@:
-    ld [rSCY],a
+	jp .move_sprites\@
+.keep_scrolling\@:
+    ld [rSCY],a					; by decrementing [rSCY] register by 1
 	jp .end\@
 .move_sprites\@:
 	ld a,b
-;	jp c,.without_sub\@			; carry flag unset - we know that we're _after_ scrolling
-	sub $28						; else: we know we're _before_ scrolling, so we need substract $70
-	ld d,a						; from player posY and then use it to move sprites (both a and c registers)
-	ld a,c
-	sub $28
-	ld c,a
-	ld a,d
-.without_sub\@:
 	call set_player_position_y
 .end\@:
 	ld a,b
