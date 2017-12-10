@@ -41,8 +41,8 @@ PlayerInit::
     ld a,ANIM_DOWN_STOP
     ld [curr_anim_last_frame],a
 	
-	SetPlayerPosX	Player,8*5
-	SetPlayerPosY	Player,8*4
+	SetPlayerPosX	Player,8*4
+	SetPlayerPosY	Player,8*5
     
     pop af
     ret
@@ -104,7 +104,7 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
     cp PADF_DOWN
     jp z,.move_down
 .move_right:                        ; w prawo: przesun wszystkie sprite'y o 1 w prawo i sprawdz czy nie sa juz w docelowym miejscu
-    GetSpriteXAddr  Sprite3
+    GetPlayerPosX	Player
     inc a                           ; dodaj 1 do biezace wspolrzednej X sprite'a
     ld b,a                          ; skopiuj do B
     sub 8                           ; odejmij 8 od biezacej wspolrzednej X sprite'a
@@ -116,13 +116,13 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
     cp e
     jp z,.finish_movement\@
     ld a,b
-    call set_player_position_x
+    call scroll_or_move_right
     and 256-16
     cp b
     jp z,.finish_movement\@         ; jesli pozycja po przesunieciu o 1 dzieli sie bez reszty przez 16 to znaczy, ze trzeba zakonczyc ruch 
     jp nz,.end\@                    ; w przeciwnym wypadku po prostu zakoncz procedure bez zmiany flagi player_moving
 .move_left:                         ; analogicznie jak move_right tyle ze przesuwamy sie w lewo a wiec odejmujemy 1 od biezacej wspolrzednej X
-    GetSpriteXAddr  Sprite3
+    GetPlayerPosX	Player
     dec a
     ld b,a
     sub 8
@@ -134,7 +134,7 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
     cp e
     jp z,.finish_movement\@
     ld a,b
-    call set_player_position_x
+    call scroll_or_move_left
     and 256-16
     cp b
     jp z,.finish_movement\@
@@ -199,6 +199,99 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
     ret
 
 ;******************************************************************************
+;*      Move player sprites right the screen or scroll right the map
+;*		using [rSCX] register
+;*
+;*      input:
+;*          a - x coordinate of the player
+;*
+;*      output:
+;*          none
+;*
+;******************************************************************************   	
+scroll_or_move_right:
+	push af
+	push bc
+	push de
+	ld b,a
+	sbc a,$50
+	jp c,.move_sprites\@        ; if player centerX < $50h (80) then move sprites (carry flag set)
+	ld a,b
+	sbc a,$b0
+	jp nc,.move_sprites\@       ; if scroll X coordinate > $B0h (176) 
+	ld a,[rSCX]					; then move sprites (carry flag unset)
+	inc a
+	ld e,$FF
+	cp e
+	jr nz,.keep_scrolling\@		; otherwise keep scrolling up
+	ld a,0
+	jp .move_sprites\@
+.keep_scrolling\@:
+    ld [rSCX],a					; by incrementing [rSCX] register by 1
+	jp .end\@
+.move_sprites\@:
+	ld a,b
+	jp c,.without_sub\@
+	sub $60						; substract $60h (96) from player position x
+	ld d,a						; and use the result as a new x coordinate
+	ld a,c						; for the sprites
+	sub $60
+	ld c,a
+	ld a,d
+.without_sub\@
+	call set_player_position_x
+.end\@:
+	ld a,b
+	SetPlayerPosX	Player,a
+	pop de
+    pop bc
+    pop af
+    ret
+
+;******************************************************************************
+;*      Move player sprites left the screen or scroll left the map
+;*		using [rSCX] register
+;*
+;*      input:
+;*          a - x coordinate of the player
+;*
+;*      output:
+;*          none
+;*
+;******************************************************************************   		
+scroll_or_move_left:
+	push af
+	push bc
+	push de
+	ld b,a
+	ld a,[rSCX]
+	sbc a,$b0
+	jp nc,.move_sprites\@       ; if scroll X coordinate > $B0h (176) then move sprites (carry flag unset)
+	ld a,b
+	sbc a,$50
+	jp c,.move_sprites\@     	; if player centerX < $50h (80) then move sprites (carry flag set)
+	ld a,[rSCX]
+	dec a
+	ld e,$FF
+	cp e
+	jr nz,.keep_scrolling\@		; otherwise keep scrolling up
+	ld a,0
+	jp .move_sprites\@
+.keep_scrolling\@:
+	ld [rSCX],a
+	jp .end\@
+.move_sprites\@:
+	ld a,b
+	call set_player_position_x
+.end\@:
+	ld a,b
+	SetPlayerPosX	Player,a
+	pop de
+    pop bc
+    pop af
+    ret
+
+;******************************************************************************
 ;*      Move player sprites down the screen or scroll down the map
 ;*		using [rSCY] register
 ;*
@@ -215,10 +308,10 @@ scroll_or_move_down:
 	push de
     ld b,a              		; save player centerY in b
     sbc a,$48
-    jp c,.move_sprites\@        ; if player centerY < $48 then move sprites (carry flag set)
+    jp c,.move_sprites\@        ; if player centerY < $48h (72) then move sprites (carry flag set)
     ld a,[rSCY]
     sbc a,$70
-    jp nc,.move_sprites\@       ; if scroll Y coordinate > $70 then move sprites (carry flag unset)
+    jp nc,.move_sprites\@       ; if scroll Y coordinate > $70h (112) then move sprites (carry flag unset)
     ld a,[rSCY]
     inc a
     ld [rSCY],a					; increment value of the [rSCY] register by 1
@@ -259,10 +352,10 @@ scroll_or_move_up:
     ld b,a              		; save player centerX in b
 	ld a,[rSCY]
     sbc a,$70
-    jp nc,.move_sprites\@       ; if scroll Y coordinate > $70 then move sprites (carry flag unset)
+    jp nc,.move_sprites\@       ; if scroll Y coordinate > $70h (112) then move sprites (carry flag unset)
 	ld a,b
     sbc a,$48
-    jp c,.move_sprites\@     	; if player centerY < $48 then move sprites (carry flag set)
+    jp c,.move_sprites\@     	; if player centerY < $48h (72) then move sprites (carry flag set)
     ld a,[rSCY]
     dec a
 	ld e,$FF
