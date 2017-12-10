@@ -19,6 +19,7 @@ echo "Compiling dependencies..."
 %RGBDS_HOME%\rgbasm95 -omemory.obj inc\memory.asm
 %RGBDS_HOME%\rgbasm95 -okeypad.obj inc\keypad.asm
 %RGBDS_HOME%\rgbasm95 -oplayer.obj inc\player.asm
+%RGBDS_HOME%\rgbasm95 -ocrate.obj inc\crate.asm
 
 echo "Compiling project..."
 
@@ -30,6 +31,7 @@ echo vars.obj			>> LINK
 echo memory.obj			>> LINK
 echo keypad.obj			>> LINK
 echo player.obj			>> LINK
+echo crate.obj			>> LINK
 echo %project_name%.obj	>> LINK
 echo [Output]			>> LINK
 echo %project_name%.gb	>> LINK
@@ -44,6 +46,7 @@ del vars.obj
 del memory.obj
 del keypad.obj
 del player.obj
+del crate.obj
 del sokoban.obj
 del LINK
 

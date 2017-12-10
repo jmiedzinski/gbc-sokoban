@@ -8,6 +8,7 @@ INCLUDE "res/map_tiles.z80"
 INCLUDE "res/player_tiles.z80"
 INCLUDE "res/map1.z80"
 INCLUDE "inc/player.inc"
+INCLUDE "inc/crate.inc"
 
 ; IRQs
 SECTION	"Vblank",HOME[$0040]
@@ -96,11 +97,12 @@ main:
 	call mem_Copy 																; skopiuj pamiec
 	
 	ld hl, PlayerTilesData														; ustaw adres etykiety TileData (tiles.z80) w HL
-	ld de, $8800       															; ustaw adres docelowy ($8000) w DE
-	ld bc, $0300																; ustaw ilosc bajtow do skopiowania w BC (jeden kafelek 8x8 = 16b * ilosc kafelkow)
+	ld de, $8800       															; ustaw adres docelowy ($8800) w DE
+	ld bc, $0340																; ustaw ilosc bajtow do skopiowania w BC (jeden kafelek 8x8 = 16b * ilosc kafelkow)
 	call mem_Copy 																; skopiuj pamiec
 	
 	call PlayerInit
+	call InitCrates
 	
 	ld a,[vblank_count]
 	inc a
@@ -115,6 +117,7 @@ MainLoop:
 	nop
 	ENDR
 	call AnimatePlayer
+	call DrawCrates
 	call GetKeys
 	call PlayerMovement
 	jr MainLoop

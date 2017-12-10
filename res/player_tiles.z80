@@ -10,7 +10,7 @@
 ;   Compression          : None.
 ;   Counter              : None.
 ;   Tile size            : 8 x 8
-;   Tiles                : 0 to 47
+;   Tiles                : 0 to 51
 ;
 ;   Palette colors       : None.
 ;   SGB Palette          : None.
@@ -120,5 +120,13 @@ DB $E0,$E0,$F8,$78,$FC,$FC,$FC,$FC
 DB $FE,$FE,$FE,$FE,$FE,$FE,$FF,$FD
 DB $FF,$FD,$FF,$FD,$BF,$F9,$7F,$F9
 DB $FE,$FA,$C4,$FC,$B8,$B8,$00,$00
+DB $80,$7F,$40,$FF,$3F,$FF,$24,$FB
+DB $22,$FD,$31,$FE,$29,$FE,$26,$FD
+DB $24,$FB,$28,$F7,$31,$EF,$22,$FF
+DB $27,$FF,$3F,$C0,$40,$BF,$80,$7F
+DB $01,$FE,$02,$FF,$FC,$FF,$24,$DB
+DB $44,$BB,$8C,$7B,$14,$FB,$24,$FB
+DB $64,$DB,$94,$EB,$8C,$F3,$44,$FB
+DB $24,$FB,$FC,$03,$02,$FD,$01,$FE
 
 ; End of PLAYER_TILES.Z80

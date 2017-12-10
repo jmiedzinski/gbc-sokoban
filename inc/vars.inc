@@ -57,4 +57,26 @@ GLOBAL Sprite3XAddr
 GLOBAL Sprite3TileNum
 GLOBAL Sprite3Flags
 
+GLOBAL Crate0_0YAddr
+GLOBAL Crate0_0XAddr
+GLOBAL Crate0_0TileNum
+GLOBAL Crate0_0Flags
+
+GLOBAL Crate0_1YAddr
+GLOBAL Crate0_1XAddr
+GLOBAL Crate0_1TileNum
+GLOBAL Crate0_1Flags
+
+GLOBAL Crate0_2YAddr
+GLOBAL Crate0_2XAddr
+GLOBAL Crate0_2TileNum
+GLOBAL Crate0_2Flags
+
+GLOBAL Crate0_3YAddr
+GLOBAL Crate0_3XAddr
+GLOBAL Crate0_3TileNum
+GLOBAL Crate0_3Flags
+
+
+
 ENDC
