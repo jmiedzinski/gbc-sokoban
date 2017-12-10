@@ -216,9 +216,9 @@ scroll_or_move_right:
 	ld b,a
 	sbc a,$50
 	jp c,.move_sprites\@        ; if player centerX < $50h (80) then move sprites (carry flag set)
-	ld a,b
-	sbc a,$b0
-	jp nc,.move_sprites\@       ; if scroll X coordinate > $B0h (176) 
+	ld a,[rSCX]
+	sbc a,$60
+	jp nc,.move_sprites\@       ; if scroll X coordinate > $60h (96) 
 	ld a,[rSCX]					; then move sprites (carry flag unset)
 	inc a
 	ld e,$FF
@@ -265,8 +265,8 @@ scroll_or_move_left:
 	push de
 	ld b,a
 	ld a,[rSCX]
-	sbc a,$b0
-	jp nc,.move_sprites\@       ; if scroll X coordinate > $B0h (176) then move sprites (carry flag unset)
+	sbc a,$60
+	jp nc,.move_sprites\@       ; if scroll X coordinate > $60h (96) then move sprites (carry flag unset)
 	ld a,b
 	sbc a,$50
 	jp c,.move_sprites\@     	; if player centerX < $50h (80) then move sprites (carry flag set)
