@@ -57,6 +57,21 @@ GLOBAL Sprite3XAddr
 GLOBAL Sprite3TileNum
 GLOBAL Sprite3Flags
 
+GLOBAL Crate0PosX
+GLOBAL Crate0PosY
+GLOBAL Crate0Frame
+GLOBAL Crate0Flags
+
+GLOBAL Crate1PosX
+GLOBAL Crate1PosY
+GLOBAL Crate1Frame
+GLOBAL Crate1Flags
+
+GLOBAL Crate2PosX
+GLOBAL Crate2PosY
+GLOBAL Crate2Frame
+GLOBAL Crate2Flags
+
 GLOBAL Crate0_0YAddr
 GLOBAL Crate0_0XAddr
 GLOBAL Crate0_0TileNum
@@ -77,6 +92,44 @@ GLOBAL Crate0_3XAddr
 GLOBAL Crate0_3TileNum
 GLOBAL Crate0_3Flags
 
+GLOBAL Crate1_0YAddr
+GLOBAL Crate1_0XAddr
+GLOBAL Crate1_0TileNum
+GLOBAL Crate1_0Flags
 
+GLOBAL Crate1_1YAddr
+GLOBAL Crate1_1XAddr
+GLOBAL Crate1_1TileNum
+GLOBAL Crate1_1Flags
+
+GLOBAL Crate1_2YAddr
+GLOBAL Crate1_2XAddr
+GLOBAL Crate1_2TileNum
+GLOBAL Crate1_2Flags
+
+GLOBAL Crate1_3YAddr
+GLOBAL Crate1_3XAddr
+GLOBAL Crate1_3TileNum
+GLOBAL Crate1_3Flags
+
+GLOBAL Crate2_0YAddr
+GLOBAL Crate2_0XAddr
+GLOBAL Crate2_0TileNum
+GLOBAL Crate2_0Flags
+
+GLOBAL Crate2_1YAddr
+GLOBAL Crate2_1XAddr
+GLOBAL Crate2_1TileNum
+GLOBAL Crate2_1Flags
+
+GLOBAL Crate2_2YAddr
+GLOBAL Crate2_2XAddr
+GLOBAL Crate2_2TileNum
+GLOBAL Crate2_2Flags
+
+GLOBAL Crate2_3YAddr
+GLOBAL Crate2_3XAddr
+GLOBAL Crate2_3TileNum
+GLOBAL Crate2_3Flags
 
 ENDC
