@@ -1,6 +1,6 @@
 INCLUDE "inc/memory.inc"
 
-SECTION "Memory1 Code",HOME
+SECTION "Memory1 Code",ROM0
 
 ;***************************************************************************
 ;*

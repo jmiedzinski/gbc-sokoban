@@ -6,12 +6,12 @@ INCLUDE "inc/vars.inc"
 ;* Variables
 ;*
 
-SECTION "UtilityVars",BSS
+SECTION "UtilityVars",WRAM0
 
 _PadData::      DS      1
 _PadDataEdge::  DS      1
 
-SECTION "Keypad Code",HOME
+SECTION "Keypad Code",ROM0
 
 ;***************************************************************************
 ;*

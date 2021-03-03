@@ -11,18 +11,18 @@ INCLUDE "inc/player.inc"
 INCLUDE "inc/crate.inc"
 
 ; IRQs
-SECTION	"Vblank",HOME[$0040]
+SECTION	"Vblank",ROM0[$0040]
 	jp draw
-SECTION	"LCDC",HOME[$0048]
+SECTION	"LCDC",ROM0[$0048]
 	jp stat
-SECTION	"Timer_Overflow",HOME[$0050]
+SECTION	"Timer_Overflow",ROM0[$0050]
 	jp timer
-SECTION	"Serial",HOME[$0058]
+SECTION	"Serial",ROM0[$0058]
 	jp serial
-SECTION	"p1thru4",HOME[$0060]
+SECTION	"p1thru4",ROM0[$0060]
 	jp joypad
 
-SECTION "rom", HOME[$100]
+SECTION "rom", ROM0[$100]
 	nop
 	jp main
 

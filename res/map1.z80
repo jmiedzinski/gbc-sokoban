@@ -18,7 +18,7 @@ MapDataWidth  EQU 32
 MapDataHeight EQU 32
 MapDataBank   EQU 0
 
- SECTION "TileMap", HOME
+ SECTION "TileMap", ROM0
 
 MapData::
 MapDataPLN0::

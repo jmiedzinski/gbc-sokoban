@@ -4,7 +4,7 @@ INCLUDE "inc/vars.inc"
 INCLUDE "inc/hardware.inc"
 INCLUDE "res/map1.inc"
 
-SECTION "Crate code", HOME
+SECTION "Crate code", ROMX
 
 InitCrates::
 	push af

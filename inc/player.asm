@@ -4,7 +4,7 @@ INCLUDE "inc/vars.inc"
 INCLUDE "inc/hardware.inc"
 INCLUDE "res/map1.inc"
 
-SECTION "Player code", HOME
+SECTION "Player code", ROMX
 
 PlayerInit::
     push af
@@ -114,13 +114,13 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
     ld a,[collision]
     ld e,1
     cp e
-    jp z,.finish_movement\@
+    jp z,.finish_movement
     ld a,b
     call scroll_or_move_right
     and 256-16
     cp b
-    jp z,.finish_movement\@         ; jesli pozycja po przesunieciu o 1 dzieli sie bez reszty przez 16 to znaczy, ze trzeba zakonczyc ruch 
-    jp nz,.end\@                    ; w przeciwnym wypadku po prostu zakoncz procedure bez zmiany flagi player_moving
+    jp z,.finish_movement         ; jesli pozycja po przesunieciu o 1 dzieli sie bez reszty przez 16 to znaczy, ze trzeba zakonczyc ruch 
+    jp nz,.end                    ; w przeciwnym wypadku po prostu zakoncz procedure bez zmiany flagi player_moving
 .move_left:                         ; analogicznie jak move_right tyle ze przesuwamy sie w lewo a wiec odejmujemy 1 od biezacej wspolrzednej X
     GetPlayerPosX	Player
     dec a
@@ -132,13 +132,13 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
     ld a,[collision]
     ld e,1
     cp e
-    jp z,.finish_movement\@
+    jp z,.finish_movement
     ld a,b
     call scroll_or_move_left
     and 256-16
     cp b
-    jp z,.finish_movement\@
-    jp nz,.end\@
+    jp z,.finish_movement
+    jp nz,.end
 .move_down:                         ; analogicznie jak move_right tyle ze operujemy na wspolrzednej Y
     GetPlayerPosY  Player
     inc a
@@ -150,13 +150,13 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
     ld a,[collision]
     ld e,1
     cp e
-    jp z,.finish_movement\@
+    jp z,.finish_movement
     ld a,b
     call scroll_or_move_down
     and 256-16
     cp c
-    jp z,.finish_movement\@
-    jp nz,.end\@
+    jp z,.finish_movement
+    jp nz,.end
 .move_up:                           ; analogicznie jak w move_left tyle ze operujemy na wspolrzednej Y
     GetPlayerPosY  Player
     dec a
@@ -168,14 +168,14 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
     ld a,[collision]
     ld e,1
     cp e
-    jp z,.finish_movement\@
+    jp z,.finish_movement
     ld a,b
     call scroll_or_move_up
     and 256-16
     cp c
-    jp z,.finish_movement\@
-    jp nz,.end\@    
-.finish_movement\@:                 ; koniec ruchu - ustaw flage player_moving = 0
+    jp z,.finish_movement
+    jp nz,.end    
+.finish_movement:                 ; koniec ruchu - ustaw flage player_moving = 0
     ld a,0
     ld [player_moving],a
     ld [player_animating],a
@@ -192,7 +192,7 @@ perform_movement:                   ; wykonanie ruchu postaci w zaleznosci od ki
 	GetPlayerPosY	Player
 	ld l,a
     debug_log "scrollX=%b% spriteX=%d% playerX=%h% scrollY=%c% spriteY=%e% playerY=%l%"
-.end\@:
+.end:
 	pop hl
     pop bc
     pop af
@@ -215,32 +215,32 @@ scroll_or_move_right:
 	push de
 	ld b,a
 	sbc a,$50
-	jp c,.move_sprites\@        ; if player centerX < $50h (80) then move sprites (carry flag set)
+	jp c,.move_sprites        ; if player centerX < $50h (80) then move sprites (carry flag set)
 	ld a,[rSCX]
 	sbc a,$60
-	jp nc,.move_sprites\@       ; if scroll X coordinate > $60h (96) 
+	jp nc,.move_sprites       ; if scroll X coordinate > $60h (96) 
 	ld a,[rSCX]					; then move sprites (carry flag unset)
 	inc a
 	ld e,$FF
 	cp e
-	jr nz,.keep_scrolling\@		; otherwise keep scrolling up
+	jr nz,.keep_scrolling		; otherwise keep scrolling up
 	ld a,0
-	jp .move_sprites\@
-.keep_scrolling\@:
+	jp .move_sprites
+.keep_scrolling:
     ld [rSCX],a					; by incrementing [rSCX] register by 1
-	jp .end\@
-.move_sprites\@:
+	jp .end
+.move_sprites:
 	ld a,b
-	jp c,.without_sub\@
+	jp c,.without_sub
 	sub $60						; substract $60h (96) from player position x
 	ld d,a						; and use the result as a new x coordinate
 	ld a,c						; for the sprites
 	sub $60
 	ld c,a
 	ld a,d
-.without_sub\@
+.without_sub
 	call set_player_position_x
-.end\@:
+.end:
 	ld a,b
 	SetPlayerPosX	Player,a
 	pop de
@@ -266,24 +266,24 @@ scroll_or_move_left:
 	ld b,a
 	ld a,[rSCX]
 	sbc a,$60
-	jp nc,.move_sprites\@       ; if scroll X coordinate > $60h (96) then move sprites (carry flag unset)
+	jp nc,.move_sprites       ; if scroll X coordinate > $60h (96) then move sprites (carry flag unset)
 	ld a,b
 	sbc a,$50
-	jp c,.move_sprites\@     	; if player centerX < $50h (80) then move sprites (carry flag set)
+	jp c,.move_sprites     	; if player centerX < $50h (80) then move sprites (carry flag set)
 	ld a,[rSCX]
 	dec a
 	ld e,$FF
 	cp e
-	jr nz,.keep_scrolling\@		; otherwise keep scrolling up
+	jr nz,.keep_scrolling		; otherwise keep scrolling up
 	ld a,0
-	jp .move_sprites\@
-.keep_scrolling\@:
+	jp .move_sprites
+.keep_scrolling:
 	ld [rSCX],a
-	jp .end\@
-.move_sprites\@:
+	jp .end
+.move_sprites:
 	ld a,b
 	call set_player_position_x
-.end\@:
+.end:
 	ld a,b
 	SetPlayerPosX	Player,a
 	pop de
@@ -308,26 +308,26 @@ scroll_or_move_down:
 	push de
     ld b,a              		; save player centerY in b
     sbc a,$48
-    jp c,.move_sprites\@        ; if player centerY < $48h (72) then move sprites (carry flag set)
+    jp c,.move_sprites        ; if player centerY < $48h (72) then move sprites (carry flag set)
     ld a,[rSCY]
     sbc a,$70
-    jp nc,.move_sprites\@       ; if scroll Y coordinate > $70h (112) then move sprites (carry flag unset)
+    jp nc,.move_sprites       ; if scroll Y coordinate > $70h (112) then move sprites (carry flag unset)
     ld a,[rSCY]
     inc a
     ld [rSCY],a					; increment value of the [rSCY] register by 1
-	jp .end\@
-.move_sprites\@:
+	jp .end
+.move_sprites:
 	ld a,b
-	jp c,.without_sub\@			; carry flag set - we know that we're _before_ scrolling
+	jp c,.without_sub			; carry flag set - we know that we're _before_ scrolling
 	sub $70						; else: we know we're _after_ scrolling, so we need substract $70
 	ld d,a						; from player posY and then use it to move sprites (both a and c registers)
 	ld a,c
 	sub $70
 	ld c,a
 	ld a,d
-.without_sub\@:
+.without_sub:
 	call set_player_position_y
-.end\@:
+.end:
 	ld a,b
 	SetPlayerPosY	Player,a
 	pop de
@@ -352,24 +352,24 @@ scroll_or_move_up:
     ld b,a              		; save player centerX in b
 	ld a,[rSCY]
     sbc a,$70
-    jp nc,.move_sprites\@       ; if scroll Y coordinate > $70h (112) then move sprites (carry flag unset)
+    jp nc,.move_sprites       ; if scroll Y coordinate > $70h (112) then move sprites (carry flag unset)
 	ld a,b
     sbc a,$48
-    jp c,.move_sprites\@     	; if player centerY < $48h (72) then move sprites (carry flag set)
+    jp c,.move_sprites     	; if player centerY < $48h (72) then move sprites (carry flag set)
     ld a,[rSCY]
     dec a
 	ld e,$FF
 	cp e
-	jr nz,.keep_scrolling\@		; otherwise keep scrolling up
+	jr nz,.keep_scrolling		; otherwise keep scrolling up
 	ld a,0
-	jp .move_sprites\@
-.keep_scrolling\@:
+	jp .move_sprites
+.keep_scrolling:
     ld [rSCY],a					; by decrementing [rSCY] register by 1
-	jp .end\@
-.move_sprites\@:
+	jp .end
+.move_sprites:
 	ld a,b
 	call set_player_position_y
-.end\@:
+.end:
 	ld a,b
 	SetPlayerPosY	Player,a
 	pop de
@@ -446,7 +446,7 @@ check4coll_down:
     ld a,b
     ld c,1
     cp c
-    jp z,.collision\@
+    jp z,.collision
     GetSpritePos Sprite3
     ld a,l
     add 8
@@ -455,11 +455,11 @@ check4coll_down:
     ld a,b
     ld c,1
     cp c
-    jp nz,.end\@
-.collision\@:
+    jp nz,.end
+.collision:
     ld a,1
     ld [collision],a
-.end\@:
+.end:
     pop hl
     pop bc
     pop af
@@ -490,7 +490,7 @@ check4coll_up:
     ld a,b
     ld c,1
     cp c
-    jp z,.collision\@
+    jp z,.collision
     GetSpritePos Sprite2
     ld a,l
     dec a
@@ -499,11 +499,11 @@ check4coll_up:
     ld a,b
     ld c,1
     cp c
-    jp nz,.end\@
-.collision\@:
+    jp nz,.end
+.collision:
     ld a,1
     ld [collision],a
-.end\@:
+.end:
     pop hl
     pop bc
     pop af
@@ -534,7 +534,7 @@ check4coll_left:
     ld a,b
     ld c,1
     cp c
-    jp z,.collision\@
+    jp z,.collision
     GetSpritePos Sprite1
     ld a,h
     dec a
@@ -543,11 +543,11 @@ check4coll_left:
     ld a,b
     ld c,1
     cp c
-    jp nz,.end\@
-.collision\@:
+    jp nz,.end
+.collision:
     ld a,1
     ld [collision],a
-.end\@:
+.end:
     pop hl
     pop bc
     pop af
@@ -578,7 +578,7 @@ check4coll_right:
     ld a,b
     ld c,1
     cp c
-    jp z,.collision\@
+    jp z,.collision
     GetSpritePos Sprite3
     ld a,h
     add 9
@@ -587,11 +587,11 @@ check4coll_right:
     ld a,b
     ld c,1
     cp c
-    jp nz,.end\@
-.collision\@:
+    jp nz,.end
+.collision:
     ld a,1
     ld [collision],a
-.end\@:
+.end:
     pop hl
     pop bc
     pop af
@@ -666,13 +666,13 @@ set_player_position_x:
     ld a,[player_moving]
     ld d,0
     cp d
-    jp z,.end\@
+    jp z,.end
     ld a,b
     PutSpriteXAddr  Sprite0,c
     PutSpriteXAddr  Sprite1,c
     PutSpriteXAddr  Sprite2,a
     PutSpriteXAddr  Sprite3,a
-.end\@:
+.end:
     pop de
     pop bc
     pop af
@@ -686,13 +686,13 @@ set_player_position_y:
     ld a,[player_moving]
     ld d,0
     cp d
-    jp z,.end\@
+    jp z,.end
     ld a,b
     PutSpriteYAddr  Sprite0,c
     PutSpriteYAddr  Sprite1,a
     PutSpriteYAddr  Sprite2,c
     PutSpriteYAddr  Sprite3,a
-.end\@:
+.end:
     pop de
     pop bc
     pop af
